@@ -1,0 +1,7 @@
+poll_interval_seconds = 120
+soft_deflection_percent = 100
+
+[dials]
+hub_face    = "4C0063000750524834313020"
+dial_7d     = "2D0069000650564139323920"
+dial_sonnet = ""

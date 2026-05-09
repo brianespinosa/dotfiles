@@ -1,0 +1,15 @@
+[include]
+	path = ~/.config/git/base
+
+[user]
+	name = Brian Espinosa
+	email = b@bje.co
+
+# Apple's git (Xcode CLT) ships with osxkeychain as a system-level credential
+# helper. Without the empty helper = line below, osxkeychain runs first and
+# returns whatever token it has cached — potentially the wrong account.
+# The empty line resets the helper list for github.com only, then gh takes over,
+# routing auth through whichever gh session GH_CONFIG_DIR points at.
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
