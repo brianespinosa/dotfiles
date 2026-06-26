@@ -9,7 +9,8 @@ This workspace uses **direnv** + **gh CLI** to automatically configure the corre
 | Directory pattern | GitHub account | Notes |
 |---|---|---|
 | `@momentive_emu/@mntv-*/` | `bespinosa_mntv` (work) | Inherits from `@momentive_emu/.envrc` |
-| `@SurveyMonkey/` | `brianespinosa` (personal) | `source_up` from root `.envrc` + Bedrock settings |
+| `@SurveyMonkey/` | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code |
+| `@sm-incubator/` | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code (same as `@SurveyMonkey`) |
 | `@arsenalamerica/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
 | `@bjeco/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
 | `@brianespinosa/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
@@ -48,6 +49,7 @@ MCP config lives per-repo in `.mcp.json` (committed). See `@brianespinosa/career
 |---|---|
 | `@momentive_emu/` | SurveyMonkey internal/private repos (EMU) -- uses `bespinosa_mntv` account |
 | `@SurveyMonkey/` | SurveyMonkey open source repos (public org) -- uses `brianespinosa` account |
+| `@sm-incubator/` | SurveyMonkey incubator repos (public org; not in EMU) -- experiments for new products/startups that may later move into the EMU -- uses `brianespinosa` account |
 | `@brianespinosa/` | Personal repos -- uses `brianespinosa` account |
 | `@arsenalamerica/` | Arsenal America repos -- uses `brianespinosa` account |
 | `@bjeco/` | BJECo repos -- uses `brianespinosa` account |
@@ -58,5 +60,6 @@ Each org directory has its own `CLAUDE.md` with org-specific context (git workfl
 
 - **New SurveyMonkey internal (`@mntv-*`) repo:** Place it inside `@momentive_emu/` -- inherits work credentials automatically.
 - **New SurveyMonkey open source repo:** Clone it into `@SurveyMonkey/` -- inherits personal credentials from root automatically.
+- **New SurveyMonkey incubator repo:** Clone it into `@sm-incubator/` -- inherits personal GitHub credentials from root, plus the work Anthropic Enterprise OAuth token for Claude Code (via `@sm-incubator/.envrc`, same pattern as `@SurveyMonkey`).
 - **New personal `@*` directory:** No action -- inherits personal credentials from root automatically.
 
