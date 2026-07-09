@@ -89,9 +89,9 @@
       "mcp__plugin_vercel_vercel__get_runtime_logs",
       "mcp__plugin_vercel_vercel__search_vercel_documentation",
       "Skill(pr-review-toolkit:review-pr)"
-    ]
+    ],
+    "defaultMode": "default"
   },
-  "model": "opus",
   "hooks": {
     "SessionStart": [
       {
@@ -105,6 +105,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
@@ -115,7 +118,8 @@
     "vercel@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "gh-security@skills": true
   },
   "extraKnownMarketplaces": {
     "medusa": {
@@ -123,13 +127,28 @@
         "source": "github",
         "repo": "medusajs/medusa-agent-skills"
       }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "skills": {
+      "source": {
+        "source": "github",
+        "repo": "SurveyMonkey/skills"
+      }
     }
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "tui": "fullscreen",
   "theme": "dark",
+  "editorMode": "normal",
+  "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "model": "sonnet"
 }
