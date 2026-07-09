@@ -37,7 +37,11 @@ while IFS=$'\t' read -r thread_id type title subject_url repo reason; do
       result=$(gh api "$subject_url" --jq '[.tag_name // "", .html_url // ""] | @tsv' 2>/dev/null) || continue
       IFS=$'\t' read -r tag_name html_url <<< "$result"
       [[ -z "$tag_name" ]] && continue
-      if [[ ! "$tag_name" =~ $SEMVER_RE ]]; then
+      # Monorepos tag releases as <pkg>@<version>, e.g.
+      # @tanstack/react-query@5.101.0 — the version is after the last '@'.
+      # Plain tags (v1.2.3) have no '@' and pass through unchanged.
+      version="${tag_name##*@}"
+      if [[ ! "$version" =~ $SEMVER_RE ]]; then
         mark_done "$thread_id"
         printf '%s — %s — marked done (non-semver tag: %s) — %s\n' "$repo" "$title" "$tag_name" "$html_url"
         marked=$((marked + 1))
@@ -77,8 +81,18 @@ while IFS=$'\t' read -r thread_id type title subject_url repo reason; do
         fi
       fi
       ;;
+    Issue)
+      result=$(gh api "$subject_url" --jq '[.state // "", .html_url // ""] | @tsv' 2>/dev/null) || continue
+      IFS=$'\t' read -r state html_url <<< "$result"
+      [[ -z "$state" ]] && continue
+      if [[ "$state" == "closed" ]]; then
+        mark_done "$thread_id"
+        printf '%s — %s — marked done (closed issue) — %s\n' "$repo" "$title" "$html_url"
+        marked=$((marked + 1))
+      fi
+      ;;
   esac
-done < <(gh api /notifications --paginate \
+done < <(gh api '/notifications?all=true' --paginate \
   --jq '.[] | [.id, .subject.type, .subject.title, .subject.url, .repository.full_name, .reason] | @tsv')
 
 if (( marked == 0 )); then
