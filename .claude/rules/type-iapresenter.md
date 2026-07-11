@@ -16,6 +16,8 @@ presentation-name.iapresenter/
 
 Official docs: https://ia.net/presenter/support/basics/markdown (syntax), https://ia.net/presenter/support/visuals/themes (custom themes).
 
+**No YAML frontmatter.** `text.md` begins directly with content. A leading `---` frontmatter block is parsed as a slide separator, not metadata, so deck settings belong in `info.json`, never in frontmatter.
+
 ## The Core Rule: Slides vs. Speaker Notes
 
 - **Normal paragraphs** (no indent) → speaker notes only, not visible to audience
