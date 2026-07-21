@@ -54,16 +54,15 @@ try:
         if seven is not None:
             parts.append('7d:{}%'.format(seven))
         if parts:
-            print(' '.join(parts))
+            print('\033[33m[{}]\033[0m'.format(' '.join(parts)))
     elif plan == 'enterprise':
-        used = data.get('spend_used')
-        limit = data.get('spend_limit', 80)
+        spend_pct = data.get('spend_pct')
         cinder = data.get('cinder_cove')
         parts = []
-        if used is not None:
-            parts.append('[day: ${:.2f}/${:.0f}]'.format(used, limit))
+        if spend_pct is not None:
+            parts.append('\033[32m[$day: {}%]\033[0m'.format(spend_pct))
         if cinder is not None:
-            parts.append('[crd: {}%]'.format(cinder))
+            parts.append('\033[38;5;147m[$crd: {}%]\033[0m'.format(cinder))
         if parts:
             print(' '.join(parts))
 except Exception:
@@ -71,7 +70,7 @@ except Exception:
 PYEOF
   )
   if [ -n "$usage_text" ]; then
-    usage_part=" $(printf '\033[33m')${usage_text}$(printf '\033[0m')"
+    usage_part=" ${usage_text}"
   fi
 fi
 
