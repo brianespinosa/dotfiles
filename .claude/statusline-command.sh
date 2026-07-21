@@ -56,11 +56,13 @@ try:
         if parts:
             print('\033[33m[{}]\033[0m'.format(' '.join(parts)))
     elif plan == 'enterprise':
-        spend_pct = data.get('spend_pct')
+        remaining = data.get('spend_remaining')
+        limit = data.get('spend_limit')
         cinder = data.get('cinder_cove')
         parts = []
-        if spend_pct is not None:
-            parts.append('\033[32m[$day: {}%]\033[0m'.format(spend_pct))
+        if remaining is not None:
+            day_color = '\033[31m' if remaining <= 0 else '\033[32m'
+            parts.append('{}[💰 ${:.2f}]\033[0m'.format(day_color, remaining))
         if cinder is not None:
             parts.append('\033[38;5;147m[$crd: {}%]\033[0m'.format(cinder))
         if parts:

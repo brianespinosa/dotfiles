@@ -67,12 +67,17 @@ try:
         used = spend.get('used') or {}
         limit = spend.get('limit') or {}
         exponent = used.get('exponent', 2)
-        spend_pct = spend.get('percent', 0)
+        used = spend.get('used') or {}
+        limit = spend.get('limit') or {}
+        exponent = used.get('exponent', 2)
+        spend_used = used.get('amount_minor', 0) / (10 ** exponent)
+        spend_limit = limit.get('amount_minor', 0) / (10 ** limit.get('exponent', 2))
+        spend_remaining = round(spend_limit - spend_used, 2)
         cinder_cove = data.get('cinder_cove') or {}
         cinder_pct = round(cinder_cove.get('utilization', 0))
         result = {
             "plan": "enterprise",
-            "spend_pct": spend_pct,
+            "spend_remaining": spend_remaining,
             "cinder_cove": cinder_pct,
             "ts": ts
         }
