@@ -34,13 +34,15 @@ if [ -z "$token" ]; then
 fi
 
 # Fetch usage from API (curl uses system cert store; works with corporate TLS interception)
-response=$(curl -sf \
+# -s only (no -f): capture error bodies so Python can inspect and skip on rate-limit/auth errors
+response=$(curl -s \
   -H "Authorization: Bearer $token" \
   -H "anthropic-beta: oauth-2025-04-20" \
   "https://api.anthropic.com/api/oauth/usage" 2>/dev/null)
 
 if [ -z "$response" ]; then
-  write_unknown
+  # Network failure — keep existing cache rather than clobbering with unknown
+  [ -f "$CACHE_FILE" ] || write_unknown
   exit 0
 fi
 
@@ -58,6 +60,20 @@ response_file = sys.argv[3]
 try:
     with open(response_file) as f:
         data = json.load(f)
+
+    # Rate limit or other error — stamp existing cache with rate_limited flag
+    if data.get('error'):
+        try:
+            with open(cache_file) as f:
+                existing = json.load(f)
+            existing['rate_limited'] = True
+            existing['ts'] = ts
+            with open(cache_file, 'w') as f:
+                json.dump(existing, f)
+                f.write('\n')
+        except Exception:
+            pass
+        sys.exit(0)
 
     spend = data.get('spend')
     five_hour = data.get('five_hour')
@@ -79,6 +95,7 @@ try:
             "plan": "enterprise",
             "spend_remaining": spend_remaining,
             "cinder_cove": cinder_pct,
+            "rate_limited": False,
             "ts": ts
         }
     elif five_hour is not None:
@@ -90,6 +107,7 @@ try:
             "plan": "max",
             "five_hour": five_pct,
             "seven_day": seven_pct,
+            "rate_limited": False,
             "ts": ts
         }
     else:

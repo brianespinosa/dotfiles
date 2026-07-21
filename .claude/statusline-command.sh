@@ -15,8 +15,11 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
 
-# Format path like zsh %~ (replace $HOME with ~)
-if [[ "$cwd" == "$HOME" ]]; then
+# Format path: trim to @org/... if an @ segment exists, otherwise zsh %~
+if [[ "$cwd" == */@* ]]; then
+  display_cwd="${cwd##*/@}"
+  display_cwd="@${display_cwd}"
+elif [[ "$cwd" == "$HOME" ]]; then
   display_cwd="~"
 elif [[ "$cwd" == "$HOME/"* ]]; then
   display_cwd="~${cwd#$HOME}"
@@ -57,14 +60,26 @@ try:
             print('\033[33m[{}]\033[0m'.format(' '.join(parts)))
     elif plan == 'enterprise':
         remaining = data.get('spend_remaining')
-        limit = data.get('spend_limit')
         cinder = data.get('cinder_cove')
+        rl = data.get('rate_limited', False)
+        orange = '\033[38;5;208m'
         parts = []
         if remaining is not None:
-            day_color = '\033[31m' if remaining <= 0 else '\033[32m'
-            parts.append('{}[💰 ${:.2f}]\033[0m'.format(day_color, remaining))
+            if remaining <= 0:
+                color = '\033[31m'
+            elif rl:
+                color = orange
+            else:
+                color = '\033[32m'
+            parts.append('{}[💰 ${:.2f}]\033[0m'.format(color, remaining))
         if cinder is not None:
-            parts.append('\033[38;5;147m[$crd: {}%]\033[0m'.format(cinder))
+            if cinder >= 100:
+                color = '\033[31m'
+            elif rl:
+                color = orange
+            else:
+                color = '\033[38;5;147m'
+            parts.append('{}[$crd: {}%]\033[0m'.format(color, cinder))
         if parts:
             print(' '.join(parts))
 except Exception:

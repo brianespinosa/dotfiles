@@ -20,7 +20,7 @@
         <string>/Users/bespinosa/.claude/usage-cache.sh</string>
     </array>
     <key>StartInterval</key>
-    <integer>300</integer>
+    <integer>480</integer>
     <key>RunAtLoad</key>
     <true/>
     <key>StandardOutPath</key>
