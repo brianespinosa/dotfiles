@@ -15,16 +15,25 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
 
+# In a worktree, the path ends with .claude/worktrees/<branch> — redundant with
+# the branch name. Collapse to the repo root so the path shows just the repo.
+in_worktree=""
+path_for_display="$cwd"
+if [[ "$cwd" == */.claude/worktrees/* ]]; then
+  in_worktree=1
+  path_for_display="${cwd%%/.claude/worktrees/*}"
+fi
+
 # Format path: trim to @org/... if an @ segment exists, otherwise zsh %~
-if [[ "$cwd" == */@* ]]; then
-  display_cwd="${cwd##*/@}"
+if [[ "$path_for_display" == */@* ]]; then
+  display_cwd="${path_for_display##*/@}"
   display_cwd="@${display_cwd}"
-elif [[ "$cwd" == "$HOME" ]]; then
+elif [[ "$path_for_display" == "$HOME" ]]; then
   display_cwd="~"
-elif [[ "$cwd" == "$HOME/"* ]]; then
-  display_cwd="~${cwd#$HOME}"
+elif [[ "$path_for_display" == "$HOME/"* ]]; then
+  display_cwd="~${path_for_display#$HOME}"
 else
-  display_cwd="$cwd"
+  display_cwd="$path_for_display"
 fi
 
 # GitHub @username — derived from GH_CONFIG_DIR (set by direnv); no network call needed
@@ -97,7 +106,8 @@ if git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
   branch=$(git -C "$cwd" -c core.hooksPath=/dev/null symbolic-ref --short HEAD 2>/dev/null \
            || git -C "$cwd" -c core.hooksPath=/dev/null rev-parse --short HEAD 2>/dev/null)
   if [ -n "$branch" ]; then
-    git_branch=" $(printf '\033[33m')‹${branch}›$(printf '\033[0m')"
+    [ -n "$in_worktree" ] && marker="🌲" || marker=""
+    git_branch=" $(printf '\033[33m')‹${marker}${branch}›$(printf '\033[0m')"
   fi
 fi
 
