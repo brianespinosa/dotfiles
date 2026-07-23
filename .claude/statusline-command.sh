@@ -42,7 +42,7 @@ if [[ "$GH_CONFIG_DIR" == *"work"* ]]; then
 else
   gh_user="brianespinosa"
 fi
-user_host="$(printf '\033[36m')@$(printf '\033[32m')${gh_user}$(printf '\033[0m')"
+user_host="★$(printf '\033[32m')${gh_user}$(printf '\033[0m')"
 
 # Bold blue current dir (gnzh: %B%F{blue}%~%f%b)
 dir_part="$(printf '\033[1;34m')${display_cwd}$(printf '\033[0m')"
