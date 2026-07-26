@@ -104,7 +104,8 @@ try:
             add_part(parts, spend_pct_remaining, '💰 ${:.2f}'.format(remaining))
         if cinder is not None:
             cinder_remaining = 100 - cinder
-            add_part(parts, cinder_remaining, '$crd: {}%'.format(cinder))
+            if cinder_remaining > 0:
+                add_part(parts, cinder_remaining, '$crd: {}%'.format(cinder))
     if parts:
         print(' '.join(parts))
 except Exception:
