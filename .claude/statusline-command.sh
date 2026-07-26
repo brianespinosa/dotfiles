@@ -9,11 +9,18 @@
 # which is driven by launchd (co.bje.claude-statusline-usage, every 5 min).
 # See usage-cache.sh for its own setup steps. No network calls happen here.
 
-input=$(cat)
+# jq's @tsv (tab-delimited) can't be used with bash `read` here: bash treats
+# tab as IFS whitespace and collapses consecutive delimiters, silently
+# dropping empty fields (e.g. a missing model name) and shifting the rest.
+# "|" is not IFS whitespace, so empty fields are preserved correctly.
+IFS='|' read -r cwd model remaining < <(jq -r '[
+  (.workspace.current_dir // .cwd // ""),
+  (.model.display_name // ""),
+  (.context_window.remaining_percentage // "")
+] | join("|")')
 
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
-model=$(echo "$input" | jq -r '.model.display_name // empty')
-remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
+# Colorize $text with ANSI code $code, writing into variable $var (no subshell fork)
+colorize() { printf -v "$1" '\033[%sm%s\033[0m' "$2" "$3"; }
 
 # In a worktree, the path ends with .claude/worktrees/<branch> — redundant with
 # the branch name. Collapse to the repo root so the path shows just the repo.
@@ -42,10 +49,11 @@ if [[ "$GH_CONFIG_DIR" == *"work"* ]]; then
 else
   gh_user="brianespinosa"
 fi
-user_host="★$(printf '\033[32m')${gh_user}$(printf '\033[0m')"
+colorize user_colored 32 "$gh_user"
+user_host="★${user_colored}"
 
 # Bold blue current dir (gnzh: %B%F{blue}%~%f%b)
-dir_part="$(printf '\033[1;34m')${display_cwd}$(printf '\033[0m')"
+colorize dir_part '1;34' "$display_cwd"
 
 # Claude usage stats (from cache; no network calls at render time)
 usage_part=""
@@ -69,30 +77,30 @@ try:
         else:
             return '\033[32m'          # green
 
+    def add_part(parts, remaining_pct, text):
+        parts.append('{}[{}]\033[0m'.format(color_for_remaining(remaining_pct), text))
+
+    parts = []
     if plan == 'max':
         five = data.get('five_hour')
         seven = data.get('seven_day')
-        parts = []
         if five is not None:
             five_remaining = 100 - five
-            parts.append('{}[5h: {}%]\033[0m'.format(color_for_remaining(five_remaining), five_remaining))
+            add_part(parts, five_remaining, '5h: {}%'.format(five_remaining))
         if seven is not None:
             seven_remaining = 100 - seven
-            parts.append('{}[7d: {}%]\033[0m'.format(color_for_remaining(seven_remaining), seven_remaining))
-        if parts:
-            print(' '.join(parts))
+            add_part(parts, seven_remaining, '7d: {}%'.format(seven_remaining))
     elif plan == 'enterprise':
         remaining = data.get('spend_remaining')
         spend_pct_remaining = data.get('spend_pct_remaining')
         cinder = data.get('cinder_cove')
-        parts = []
         if remaining is not None and spend_pct_remaining is not None:
-            parts.append('{}[💰 ${:.2f}]\033[0m'.format(color_for_remaining(spend_pct_remaining), remaining))
+            add_part(parts, spend_pct_remaining, '💰 ${:.2f}'.format(remaining))
         if cinder is not None:
             cinder_remaining = 100 - cinder
-            parts.append('{}[$crd: {}%]\033[0m'.format(color_for_remaining(cinder_remaining), cinder))
-        if parts:
-            print(' '.join(parts))
+            add_part(parts, cinder_remaining, '$crd: {}%'.format(cinder))
+    if parts:
+        print(' '.join(parts))
 except Exception:
     pass
 PYEOF
@@ -108,30 +116,33 @@ if git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
   branch=$(git -C "$cwd" -c core.hooksPath=/dev/null symbolic-ref --short HEAD 2>/dev/null \
            || git -C "$cwd" -c core.hooksPath=/dev/null rev-parse --short HEAD 2>/dev/null)
   if [ -n "$branch" ]; then
-    [ -n "$in_worktree" ] && marker="🌲" || marker=""
-    git_branch=" $(printf '\033[33m')‹${marker}${branch}›$(printf '\033[0m')"
+    marker=${in_worktree:+🌲}
+    colorize branch_colored 33 "‹${marker}${branch}›"
+    git_branch=" ${branch_colored}"
   fi
 fi
 
 # Context remaining — steady cyan above 20%, yellow at 20%, pulses red at 10%
 ctx_part=""
 if [ -n "$remaining" ]; then
-  rounded=$(printf '%.0f' "$remaining")
-  tick=$(( $(date +%s) % 2 ))
+  printf -v rounded '%.0f' "$remaining"
   if [ "$rounded" -le 10 ]; then
-    [ "$tick" -eq 0 ] && ctx_color='\033[33m' || ctx_color='\033[31m'
+    tick=$(( $(date +%s) % 2 ))
+    [ "$tick" -eq 0 ] && ctx_code=33 || ctx_code=31
   elif [ "$rounded" -le 20 ]; then
-    ctx_color='\033[33m'
+    ctx_code=33
   else
-    ctx_color='\033[36m'
+    ctx_code=36
   fi
-  ctx_part=" $(printf "$ctx_color")[ctx: ${rounded}%]$(printf '\033[0m')"
+  colorize ctx_colored "$ctx_code" "[ctx: ${rounded}%]"
+  ctx_part=" ${ctx_colored}"
 fi
 
 # Model
 model_part=""
 if [ -n "$model" ]; then
-  model_part=" $(printf '\033[35m')[${model}]$(printf '\033[0m')"
+  colorize model_colored 35 "[${model}]"
+  model_part=" ${model_colored}"
 fi
 
 printf "%s %s%s%s%s%s" \
