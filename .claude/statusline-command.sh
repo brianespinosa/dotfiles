@@ -57,38 +57,40 @@ try:
     with open(sys.argv[1]) as f:
         data = json.load(f)
     plan = data.get('plan')
+
+    # All budget metrics count down from 100% remaining to 0%, like ctx does.
+    def color_for_remaining(pct):
+        if pct <= 0:
+            return '\033[31m'          # red
+        elif pct < 10:
+            return '\033[38;5;208m'    # orange
+        elif pct < 30:
+            return '\033[33m'          # yellow
+        else:
+            return '\033[32m'          # green
+
     if plan == 'max':
         five = data.get('five_hour')
         seven = data.get('seven_day')
         parts = []
         if five is not None:
-            parts.append('5h:{}%'.format(five))
+            five_remaining = 100 - five
+            parts.append('{}[5h: {}%]\033[0m'.format(color_for_remaining(five_remaining), five_remaining))
         if seven is not None:
-            parts.append('7d:{}%'.format(seven))
+            seven_remaining = 100 - seven
+            parts.append('{}[7d: {}%]\033[0m'.format(color_for_remaining(seven_remaining), seven_remaining))
         if parts:
-            print('\033[33m[{}]\033[0m'.format(' '.join(parts)))
+            print(' '.join(parts))
     elif plan == 'enterprise':
         remaining = data.get('spend_remaining')
+        spend_pct_remaining = data.get('spend_pct_remaining')
         cinder = data.get('cinder_cove')
-        rl = data.get('rate_limited', False)
-        orange = '\033[38;5;208m'
         parts = []
-        if remaining is not None:
-            if remaining <= 0:
-                color = '\033[31m'
-            elif rl:
-                color = orange
-            else:
-                color = '\033[32m'
-            parts.append('{}[💰 ${:.2f}]\033[0m'.format(color, remaining))
+        if remaining is not None and spend_pct_remaining is not None:
+            parts.append('{}[💰 ${:.2f}]\033[0m'.format(color_for_remaining(spend_pct_remaining), remaining))
         if cinder is not None:
-            if cinder >= 100:
-                color = '\033[31m'
-            elif rl:
-                color = orange
-            else:
-                color = '\033[38;5;147m'
-            parts.append('{}[$crd: {}%]\033[0m'.format(color, cinder))
+            cinder_remaining = 100 - cinder
+            parts.append('{}[$crd: {}%]\033[0m'.format(color_for_remaining(cinder_remaining), cinder))
         if parts:
             print(' '.join(parts))
 except Exception:
