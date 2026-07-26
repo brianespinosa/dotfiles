@@ -14,9 +14,4 @@ paths:
 
 Before trusting any other field's name or assumed semantics (reset cadence, whether it's per-org vs per-grant, whether absence means zero vs not-applicable), verify against a live response (`curl` with the OAuth token from the `Claude Code-credentials` keychain item) rather than inferring from the field name.
 
-If either script starts erroring, silently stops showing a value, or the statusline output looks wrong, the schema changing underneath us is a real, likely possibility — not just a bug in these scripts. Pull a fresh live response and diff it against what the code expects before assuming the bug is local:
-
-```bash
-token=$(security find-generic-password -s "Claude Code-credentials" -w | python3 -c "import sys,json; print(json.load(sys.stdin)['claudeAiOauth']['accessToken'])")
-curl -s -H "Authorization: Bearer $token" -H "anthropic-beta: oauth-2025-04-20" "https://api.anthropic.com/api/oauth/usage" | python3 -m json.tool
-```
+If either script starts erroring, silently stops showing a value, or the statusline output looks wrong, the schema changing underneath us is a real, likely possibility — not just a bug in these scripts. Pull a fresh live response and diff it against what the code expects before assuming the bug is local.
