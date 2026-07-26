@@ -75,11 +75,17 @@ try:
             pass
         sys.exit(0)
 
-    spend = data.get('spend')
+    spend = data.get('spend') or {}
     five_hour = data.get('five_hour')
 
-    if spend is not None:
-        # Enterprise plan: non-null spend field
+    # The API always returns a `spend` object, even for Max plan accounts —
+    # it's just disabled (enabled: false, limit: null). Only treat this as
+    # an enterprise/budget account when spend is actually enabled with a
+    # real limit; otherwise fall through to the five_hour/seven_day check.
+    is_enterprise = bool(spend.get('enabled')) and spend.get('limit') is not None
+
+    if is_enterprise:
+        # Enterprise plan: spend tracking enabled with a real limit
         used = spend.get('used') or {}
         limit = spend.get('limit') or {}
         exponent = used.get('exponent', 2)
