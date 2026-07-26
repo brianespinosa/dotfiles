@@ -65,10 +65,16 @@ try:
     with open(sys.argv[1]) as f:
         data = json.load(f)
     plan = data.get('plan')
+    rate_limited = data.get('rate_limited', False)
 
     # All budget metrics count down from 100% remaining to 0%, like ctx does.
     def color_for_remaining(pct):
-        if pct <= 0:
+        if rate_limited:
+            # Usage endpoint is rate-limited (numbers may be stale) — dim
+            # rather than colored, so it's distinct from the orange/red
+            # "actually low on budget" signal.
+            return '\033[2m'           # dim/muted
+        elif pct <= 0:
             return '\033[31m'          # red
         elif pct < 10:
             return '\033[38;5;208m'    # orange
