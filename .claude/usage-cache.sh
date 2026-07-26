@@ -93,16 +93,32 @@ try:
         spend_limit = limit.get('amount_minor', 0) / (10 ** limit.get('exponent', 2))
         spend_remaining = round(spend_limit - spend_used, 2)
         spend_pct_remaining = round(100 - spend.get('percent', 0))
-        cinder_cove = data.get('cinder_cove') or {}
-        cinder_pct = round(cinder_cove.get('utilization', 0))
         result = {
             "plan": "enterprise",
             "spend_remaining": spend_remaining,
             "spend_pct_remaining": spend_pct_remaining,
-            "cinder_cove": cinder_pct,
             "rate_limited": False,
             "ts": ts
         }
+        # cinder_cove is a one-time promotional credit grant, not the org's
+        # recurring budget. Its resets_at is an expiration date for that
+        # single grant -- it does NOT tell us when overall org spend/credits
+        # refresh. That reset cadence is unknown; we'll need to find it out
+        # of band and hardcode it somewhere once we know it.
+        #
+        # After resets_at passes, the API is expected to null out cinder_cove
+        # rather than remove the key (same pattern as other unused fields in
+        # this response, e.g. five_hour/tangelo/amber_ladder). Only add
+        # "cinder_cove" to the cache when the API actually returned an
+        # object, so a null/missing value drops the field entirely instead
+        # of caching a fake 0%, which downstream would misread as "100%
+        # remaining" and keep displaying it forever.
+        # TODO(next session touching this file): if cinder_cove has stopped
+        # appearing in the live API response, remove this block and the
+        # matching cinder handling in statusline-command.sh.
+        cinder_cove = data.get('cinder_cove')
+        if cinder_cove is not None:
+            result["cinder_cove"] = round(cinder_cove.get('utilization', 0))
     elif five_hour is not None:
         # Max plan: non-null five_hour field
         five_pct = round(five_hour.get('utilization', 0))

@@ -99,6 +99,11 @@ try:
     elif plan == 'enterprise':
         remaining = data.get('spend_remaining')
         spend_pct_remaining = data.get('spend_pct_remaining')
+        # cinder_cove is a one-time promotional credit, not a recurring
+        # budget -- see the longer note in usage-cache.sh. usage-cache.sh
+        # omits this key entirely once the API stops returning it, so
+        # `cinder is not None` here naturally stops matching; no need to
+        # special-case expiration on this side.
         cinder = data.get('cinder_cove')
         if remaining is not None and spend_pct_remaining is not None:
             add_part(parts, spend_pct_remaining, '💰 ${:.2f}'.format(remaining))
