@@ -128,9 +128,9 @@ if git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
   branch=$(git -C "$cwd" -c core.hooksPath=/dev/null symbolic-ref --short HEAD 2>/dev/null \
            || git -C "$cwd" -c core.hooksPath=/dev/null rev-parse --short HEAD 2>/dev/null)
   if [ -n "$branch" ]; then
-    marker=${in_worktree:+🌲}
-    colorize branch_colored 33 "‹${marker}${branch}›"
-    git_branch=" ${branch_colored}"
+    marker=${in_worktree:+🌲 }
+    colorize branch_colored 33 "‹${branch}›"
+    git_branch=" ${marker}${branch_colored}"
   fi
 fi
 
@@ -146,7 +146,7 @@ if [ -n "$remaining" ]; then
   else
     ctx_code=36
   fi
-  colorize ctx_colored "$ctx_code" "[ctx: ${rounded}%]"
+  colorize ctx_colored "$ctx_code" "[🧠 ${rounded}%]"
   ctx_part=" ${ctx_colored}"
 fi
 
@@ -158,4 +158,4 @@ if [ -n "$model" ]; then
 fi
 
 printf "%s %s%s%s%s%s" \
-  "$user_host" "$dir_part" "$git_branch" "$ctx_part" "$model_part" "$usage_part"
+  "$user_host" "$dir_part" "$git_branch" "$model_part" "$ctx_part" "$usage_part"
