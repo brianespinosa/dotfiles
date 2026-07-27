@@ -1,4 +1,4 @@
-poll_interval_seconds = 120
+poll_interval_seconds = 300
 soft_deflection_percent = 100
 
 [dials]

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fetch Claude API usage and write to cache for statusline display.
-# Called by launchd (co.bje.claude-statusline-usage) every 5 minutes.
+# Called by launchd (co.bje.claude-statusline-usage) every 8 minutes.
 #
 # Setup (one-time, after stow):
 #   chmod +x ~/.claude/usage-cache.sh

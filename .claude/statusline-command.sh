@@ -6,7 +6,7 @@
 #     "statusLine": { "type": "command", "command": "bash ~/.claude/statusline-command.sh" }
 #
 # Usage stats are read from a cache file written by ~/.claude/usage-cache.sh,
-# which is driven by launchd (co.bje.claude-statusline-usage, every 5 min).
+# which is driven by launchd (co.bje.claude-statusline-usage, every 8 min).
 # See usage-cache.sh for its own setup steps. No network calls happen here.
 
 # jq's @tsv (tab-delimited) can't be used with bash `read` here: bash treats
