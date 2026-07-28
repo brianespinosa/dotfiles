@@ -106,6 +106,10 @@
       }
     ]
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "worktree": {
     "baseRef": "fresh"
   },

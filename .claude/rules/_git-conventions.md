@@ -10,6 +10,6 @@ Keep messages brief.
 
 NEVER commit with `--no-verify`. If a pre-commit hook fails, fix the underlying issue before committing.
 
-## Attribution
+## PR descriptions
 
-NEVER add `🤖 Generated with Claude Code` or `Co-Authored-By: Claude` footers to commit messages, PR titles, or PR descriptions. Keep PR descriptions focused on technical changes, testing, and references.
+Keep PR descriptions focused on technical changes, testing, and references.
