@@ -5,9 +5,11 @@
 #   Ensure settings.json points to this script:
 #     "statusLine": { "type": "command", "command": "bash ~/.claude/statusline-command.sh" }
 #
-# Usage stats are read from a cache file written by ~/.claude/usage-cache.sh,
-# which is driven by launchd (co.bje.claude-statusline-usage, every 8 min).
-# See usage-cache.sh for its own setup steps. No network calls happen here.
+# Usage stats are read from a shared cache written by the vu1-claude-token-usage
+# poller (~/Library/Caches/claude-usage/usage.json, its own repo/ADR-0018).
+# This script is a pure reader: no network calls and no credentials here. If
+# the poller isn't running, the cache is missing/stale/malformed, or the
+# schema version doesn't match, the usage segment is silently omitted.
 
 # jq's @tsv (tab-delimited) can't be used with bash `read` here: bash treats
 # tab as IFS whitespace and collapses consecutive delimiters, silently
@@ -55,24 +57,83 @@ user_host="★${user_colored}"
 # Bold blue current dir (gnzh: %B%F{blue}%~%f%b)
 colorize dir_part '1;34' "$display_cwd"
 
-# Claude usage stats (from cache; no network calls at render time)
+# Claude usage stats (from the shared vu1-claude-token-usage cache; no
+# network calls or credentials at render time — see the path-scoped rule
+# for the full cache contract)
 usage_part=""
-usage_cache="$HOME/Library/Caches/claude-statusline/usage.json"
+usage_cache="$HOME/Library/Caches/claude-usage/usage.json"
 if [ -f "$usage_cache" ]; then
   usage_text=$(python3 - "$usage_cache" <<'PYEOF'
 import sys, json
+from datetime import datetime
+
+# 3x the poller's 300s poll cadence (ADR-0018 in vu1-claude-token-usage) —
+# past this, a healthy-looking cached number is more likely stale than
+# current, so treat it the same as an explicit rate-limit warning.
+STALE_THRESHOLD_SECONDS = 900
+
+def coerce_float(value):
+    # Mirrors the vu1-claude-token-usage poller's own guard
+    # (usage_cache._coerce_float). bool is an int subclass in Python, so
+    # it must be rejected explicitly before accepting int/float — otherwise
+    # a boolean field (e.g. a malformed remaining_dollars: true) silently
+    # renders as 1.0.
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+def clamp_pct(pct):
+    return max(0, min(100, pct))
+
 try:
     with open(sys.argv[1]) as f:
         data = json.load(f)
-    plan = data.get('plan')
+
+    version = data.get('version') if isinstance(data, dict) else None
+    # Require an exact int 1: loose equality would also accept True (bool
+    # is an int subclass) and 1.0 (float), neither of which is the schema
+    # version the writer actually emits.
+    valid_version = (
+        isinstance(data, dict)
+        and isinstance(version, int)
+        and not isinstance(version, bool)
+        and version == 1
+    )
+    if not valid_version:
+        raise ValueError('missing or unsupported cache schema version')
+
+    active_plan = data.get('active_plan')
     rate_limited = data.get('rate_limited', False)
+
+    # The poller is now the only freshness signal: unlike the old
+    # independent 480s-interval fetcher, a dead/unloaded poller or an
+    # auth error (not just a 429) leaves this cache untouched forever, so
+    # rate_limited alone isn't enough to catch "quietly gone stale".
+    # updated_at is written by the poller on every successful publish AND
+    # on rate-limit marks, so its age is a reliable liveness check. A
+    # doc that is otherwise valid but has an absent/unparseable
+    # updated_at is treated as stale too, since the writer always sets it.
+    stale = True
+    updated_at = data.get('updated_at')
+    if isinstance(updated_at, str):
+        try:
+            ts = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+            if ts.tzinfo is not None:
+                age_seconds = (datetime.now(ts.tzinfo) - ts).total_seconds()
+                stale = age_seconds > STALE_THRESHOLD_SECONDS
+        except ValueError:
+            stale = True
+
+    dim = rate_limited or stale
 
     # All budget metrics count down from 100% remaining to 0%, like ctx does.
     def color_for_remaining(pct):
-        if rate_limited:
-            # Usage endpoint is rate-limited (numbers may be stale) — dim
-            # rather than colored, so it's distinct from the orange/red
-            # "actually low on budget" signal.
+        if dim:
+            # Either explicitly rate-limited or stale past the threshold
+            # above — dim rather than colored, so it's distinct from the
+            # orange/red "actually low on budget" signal.
             return '\033[2m'           # dim/muted
         elif pct <= 0:
             return '\033[31m'          # red
@@ -87,30 +148,31 @@ try:
         parts.append('{}[{}]\033[0m'.format(color_for_remaining(remaining_pct), text))
 
     parts = []
-    if plan == 'max':
-        five = data.get('five_hour')
-        seven = data.get('seven_day')
-        if five is not None:
-            five_remaining = 100 - five
-            add_part(parts, five_remaining, '5h: {}%'.format(five_remaining))
-        if seven is not None:
-            seven_remaining = 100 - seven
-            add_part(parts, seven_remaining, '7d: {}%'.format(seven_remaining))
-    elif plan == 'enterprise':
-        remaining = data.get('spend_remaining')
-        spend_pct_remaining = data.get('spend_pct_remaining')
-        # cinder_cove is a one-time promotional credit, not a recurring
-        # budget -- see the longer note in usage-cache.sh. usage-cache.sh
-        # omits this key entirely once the API stops returning it, so
-        # `cinder is not None` here naturally stops matching; no need to
-        # special-case expiration on this side.
-        cinder = data.get('cinder_cove')
-        if remaining is not None and spend_pct_remaining is not None:
-            add_part(parts, spend_pct_remaining, '💰 ${:.2f}'.format(remaining))
-        if cinder is not None:
-            cinder_remaining = 100 - cinder
-            if cinder_remaining > 0:
-                add_part(parts, cinder_remaining, '$crd: {}%'.format(cinder))
+    if active_plan == 'max':
+        max_section = data.get('max')
+        if max_section is not None:
+            five = max_section.get('five_hour')
+            if five is not None:
+                five_util = coerce_float(five.get('utilization'))
+                if five_util is not None:
+                    five_remaining = clamp_pct(round(100 - five_util))
+                    add_part(parts, five_remaining, '5h: {}%'.format(five_remaining))
+            seven = max_section.get('seven_day')
+            if seven is not None:
+                seven_util = coerce_float(seven.get('utilization'))
+                if seven_util is not None:
+                    seven_remaining = clamp_pct(round(100 - seven_util))
+                    add_part(parts, seven_remaining, '7d: {}%'.format(seven_remaining))
+    elif active_plan == 'enterprise':
+        enterprise_section = data.get('enterprise')
+        if enterprise_section is not None:
+            spend = enterprise_section.get('spend')
+            if spend is not None:
+                remaining_dollars = coerce_float(spend.get('remaining_dollars'))
+                percent = coerce_float(spend.get('percent'))
+                if remaining_dollars is not None and percent is not None:
+                    pct_remaining = clamp_pct(round(100 - percent))
+                    add_part(parts, pct_remaining, '💰 ${:.2f}'.format(remaining_dollars))
     if parts:
         print(' '.join(parts))
 except Exception:
