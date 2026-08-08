@@ -2,6 +2,7 @@ poll_interval_seconds = 300
 soft_deflection_percent = 100
 
 [dials]
-hub_face    = "4C0063000750524834313020"
-dial_7d     = "2D0069000650564139323920"
-dial_sonnet = ""
+hub_face   = "4C0063000750524834313020"
+dial_7d    = "2D0069000650564139323920"
+dial_spend = "6B0047000650564139323920"
+# spare dial, unused (ADR-0019): 7E003D000650564139323920
