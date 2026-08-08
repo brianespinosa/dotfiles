@@ -1,7 +1,8 @@
-# #119 cadence probe, step 1 of 2: 240s since 2026-08-08 (was 300, ADR-0017).
-# Sole-consumer headroom test after the statusline fetcher cutover; revert to
-# 300 if daily 429 clusters return, drop to 180 if clean after ~48h soak.
-poll_interval_seconds = 240
+# #119 cadence probe: 120s since 2026-08-08 (was 240 briefly, 300 per ADR-0017).
+# Aggressive sole-consumer stress test: backoff (ADR-0013/0016) makes a 429
+# cheap (one dim/backoff cycle), so probe the original ADR-0008 cadence
+# directly. Settle back to 180 or 240 if burst-day 429 clusters return.
+poll_interval_seconds = 120
 soft_deflection_percent = 100
 
 [dials]
