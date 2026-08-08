@@ -1,4 +1,7 @@
-poll_interval_seconds = 300
+# #119 cadence probe, step 1 of 2: 240s since 2026-08-08 (was 300, ADR-0017).
+# Sole-consumer headroom test after the statusline fetcher cutover; revert to
+# 300 if daily 429 clusters return, drop to 180 if clean after ~48h soak.
+poll_interval_seconds = 240
 soft_deflection_percent = 100
 
 [dials]
