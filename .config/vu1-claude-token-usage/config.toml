@@ -8,5 +8,5 @@ soft_deflection_percent = 100
 [dials]
 hub_face   = "4C0063000750524834313020"
 dial_7d    = "2D0069000650564139323920"
-dial_fable = "7E003D000650564139323920"  # per-model Fable weekly cap (ADR-0021)
-dial_spend = "6B0047000650564139323920"
+dial_fable = "6B0047000650564139323920"  # per-model Fable weekly cap (ADR-0021)
+dial_spend = "7E003D000650564139323920"
