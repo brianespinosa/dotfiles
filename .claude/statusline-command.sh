@@ -92,14 +92,16 @@ try:
         data = json.load(f)
 
     version = data.get('version') if isinstance(data, dict) else None
-    # Require an exact int 1: loose equality would also accept True (bool
-    # is an int subclass) and 1.0 (float), neither of which is the schema
-    # version the writer actually emits.
+    # Require an exact int 2: loose equality would also accept True (bool
+    # is an int subclass) and 2.0 (float), neither of which is the schema
+    # version the writer actually emits. Bumped from 1 to 2 by the
+    # vu1-claude-token-usage poller's ADR-0021 (limits-array cutover):
+    # the max section's five_hour/seven_day keys became session/week.
     valid_version = (
         isinstance(data, dict)
         and isinstance(version, int)
         and not isinstance(version, bool)
-        and version == 1
+        and version == 2
     )
     if not valid_version:
         raise ValueError('missing or unsupported cache schema version')
@@ -151,18 +153,18 @@ try:
     if active_plan == 'max':
         max_section = data.get('max')
         if max_section is not None:
-            five = max_section.get('five_hour')
-            if five is not None:
-                five_util = coerce_float(five.get('utilization'))
-                if five_util is not None:
-                    five_remaining = clamp_pct(round(100 - five_util))
-                    add_part(parts, five_remaining, '5h: {}%'.format(five_remaining))
-            seven = max_section.get('seven_day')
-            if seven is not None:
-                seven_util = coerce_float(seven.get('utilization'))
-                if seven_util is not None:
-                    seven_remaining = clamp_pct(round(100 - seven_util))
-                    add_part(parts, seven_remaining, '7d: {}%'.format(seven_remaining))
+            session = max_section.get('session')
+            if session is not None:
+                session_util = coerce_float(session.get('utilization'))
+                if session_util is not None:
+                    session_remaining = clamp_pct(round(100 - session_util))
+                    add_part(parts, session_remaining, '5h: {}%'.format(session_remaining))
+            week = max_section.get('week')
+            if week is not None:
+                week_util = coerce_float(week.get('utilization'))
+                if week_util is not None:
+                    week_remaining = clamp_pct(round(100 - week_util))
+                    add_part(parts, week_remaining, '7d: {}%'.format(week_remaining))
     elif active_plan == 'enterprise':
         enterprise_section = data.get('enterprise')
         if enterprise_section is not None:
