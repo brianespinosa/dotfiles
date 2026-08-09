@@ -103,6 +103,27 @@
             "command": "rm -f ~/Library/Caches/vu1-claude-token-usage/rate-limit-backoff.state"
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/commands/gh/gh-tidy-hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/commands/gh/gh-tidy-hook.sh",
+            "timeout": 10
+          }
+        ]
       }
     ]
   },
