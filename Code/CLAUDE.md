@@ -6,19 +6,19 @@ This workspace uses **direnv** + **gh CLI** to automatically configure the corre
 
 ### Directory → Account Mapping
 
-| Directory pattern | GitHub account | Notes |
-|---|---|---|
-| `@momentive_emu/@mntv-*/` | `bespinosa_mntv` (work) | Inherits from `@momentive_emu/.envrc` |
-| `@SurveyMonkey/` | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code |
-| `@sm-incubator/` | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code (same as `@SurveyMonkey`) |
-| `@arsenalamerica/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
-| `@bjeco/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
-| `@brianespinosa/` | `brianespinosa` (personal) | Inherits from root `.envrc` |
-| Everything else | `brianespinosa` (personal) | Inherits from root `.envrc` |
+| Directory pattern         | GitHub account             | Notes                                                                                                            |
+| ------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `@momentive_emu/@mntv-*/` | `bespinosa_mntv` (work)    | Inherits from `@momentive_emu/.envrc`                                                                            |
+| `@SurveyMonkey/`          | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code                           |
+| `@sm-incubator/`          | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code (same as `@SurveyMonkey`) |
+| `@arsenalamerica/`        | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
+| `@bjeco/`                 | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
+| `@brianespinosa/`         | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
+| Everything else           | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
 
 ### Environment Variables Set by direnv
 
-> *Do not* set these variables manually. They will already be present in the environment.
+> _Do not_ set these variables manually. They will already be present in the environment.
 
 - `GH_CONFIG_DIR` — points `gh` CLI to the correct stored auth session
 - `GITHUB_PAT` — fetched dynamically via `gh auth token` from the active session
@@ -32,27 +32,23 @@ If `gh` ever picks the wrong account, the fix is to verify direnv is loaded (`di
 
 ### Auth Sessions / Config Files
 
-| Tool | Personal | Work |
-|---|---|---|
-| `gh` | `~/.config/gh/personal/` | `~/.config/gh/work/` |
+| Tool  | Personal                 | Work                 |
+| ----- | ------------------------ | -------------------- |
+| `gh`  | `~/.config/gh/personal/` | `~/.config/gh/work/` |
 | `git` | `~/.config/git/personal` | `~/.config/git/work` |
 
 Both git profiles include `~/.config/git/base` for shared settings.
 
-### GitHub MCP
-
-MCP config lives per-repo in `.mcp.json` (committed). See `@brianespinosa/career/.mcp.json` as the reference. Local opt-in via each repo's `.claude/settings.local.json`.
-
 ## Workspace Structure
 
-| Directory | Purpose |
-|---|---|
-| `@momentive_emu/` | SurveyMonkey internal/private repos (EMU) -- uses `bespinosa_mntv` account |
-| `@SurveyMonkey/` | SurveyMonkey open source repos (public org) -- uses `brianespinosa` account |
-| `@sm-incubator/` | SurveyMonkey incubator repos (public org; not in EMU) -- experiments for new products/startups that may later move into the EMU -- uses `brianespinosa` account |
-| `@brianespinosa/` | Personal repos -- uses `brianespinosa` account |
-| `@arsenalamerica/` | Arsenal America repos -- uses `brianespinosa` account |
-| `@bjeco/` | BJECo repos -- uses `brianespinosa` account |
+| Directory          | Purpose                                                                                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@momentive_emu/`  | SurveyMonkey internal/private repos (EMU) -- uses `bespinosa_mntv` account                                                                                      |
+| `@SurveyMonkey/`   | SurveyMonkey open source repos (public org) -- uses `brianespinosa` account                                                                                     |
+| `@sm-incubator/`   | SurveyMonkey incubator repos (public org; not in EMU) -- experiments for new products/startups that may later move into the EMU -- uses `brianespinosa` account |
+| `@brianespinosa/`  | Personal repos -- uses `brianespinosa` account                                                                                                                  |
+| `@arsenalamerica/` | Arsenal America repos -- uses `brianespinosa` account                                                                                                           |
+| `@bjeco/`          | BJECo repos -- uses `brianespinosa` account                                                                                                                     |
 
 Each org directory has its own `CLAUDE.md` with org-specific context (git workflow, toolchain, worktree conventions).
 
@@ -62,4 +58,3 @@ Each org directory has its own `CLAUDE.md` with org-specific context (git workfl
 - **New SurveyMonkey open source repo:** Clone it into `@SurveyMonkey/` -- inherits personal credentials from root automatically.
 - **New SurveyMonkey incubator repo:** Clone it into `@sm-incubator/` -- inherits personal GitHub credentials from root, plus the work Anthropic Enterprise OAuth token for Claude Code (via `@sm-incubator/.envrc`, same pattern as `@SurveyMonkey`).
 - **New personal `@*` directory:** No action -- inherits personal credentials from root automatically.
-
