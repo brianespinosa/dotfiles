@@ -148,6 +148,7 @@
     }
   },
   "alwaysThinkingEnabled": true,
+  "autoMemoryEnabled": false,
   "effortLevel": "medium",
   "tui": "fullscreen",
   "theme": "dark",
