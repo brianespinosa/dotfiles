@@ -7,7 +7,7 @@ paths:
 
 ## Commits
 
-Commit messages are a single emoji character, nothing more. Pick whichever emoji feels appropriate for the commit. This overrides the Conventional Commits convention from the workspace CLAUDE.md.
+Use the workspace's Conventional Commits convention (`feat`, `fix`, `docs`, `chore`, etc.), same as any other repo. No repo-specific override.
 
 ## Sync
 

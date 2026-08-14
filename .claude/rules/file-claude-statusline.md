@@ -66,8 +66,9 @@ to know how the cache is produced, only its contract.
 - All budget metrics count down from 100% remaining to 0%, same convention
   as the `ctx` segment: color thresholds (red/orange/yellow/green) key off
   `100 - utilization` (or `100 - spend.percent`), not the raw utilization.
-- `$` amounts render from `enterprise.spend.remaining_dollars`, not a
-  computed value — read it directly from the cache.
+- The enterprise budget segment renders as a computed percentage
+  (`100 - spend.percent`, clamped), not `spend.remaining_dollars`. The
+  dollar figure is still read from the cache but no longer displayed.
 - The one-time `cinder_cove` promotional-credit segment (`$crd: N%`) has
   been removed entirely. It is not part of the shared cache schema and
   should not be reintroduced without a new decision upstream.

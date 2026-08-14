@@ -174,7 +174,7 @@ try:
                 percent = coerce_float(spend.get('percent'))
                 if remaining_dollars is not None and percent is not None:
                     pct_remaining = clamp_pct(round(100 - percent))
-                    add_part(parts, pct_remaining, '💰 ${:.2f}'.format(remaining_dollars))
+                    add_part(parts, pct_remaining, '💰 {}%'.format(pct_remaining))
     if parts:
         print(' '.join(parts))
 except Exception:
