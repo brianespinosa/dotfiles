@@ -67,8 +67,9 @@ to know how the cache is produced, only its contract.
   as the `ctx` segment: color thresholds (red/orange/yellow/green) key off
   `100 - utilization` (or `100 - spend.percent`), not the raw utilization.
 - The enterprise budget segment renders as a computed percentage
-  (`100 - spend.percent`, clamped), not `spend.remaining_dollars`. The
-  dollar figure is still read from the cache but no longer displayed.
+  (`100 - spend.percent`, clamped) by default. `spend.remaining_dollars` is
+  read from the cache and displayed instead when the user has toggled
+  dollar mode on (see "Cost display toggle" below).
 - The one-time `cinder_cove` promotional-credit segment (`$crd: N%`) has
   been removed entirely. It is not part of the shared cache schema and
   should not be reintroduced without a new decision upstream.
@@ -77,3 +78,12 @@ If the statusline's usage segment errors, silently stops showing a value,
 or looks wrong, first check whether `usage.json` exists and matches the
 schema above — most likely causes are the poller not running, or a schema
 bump on the writer side — before assuming the bug is in this script.
+
+## Cost display toggle
+
+`~/.claude/statusline-cost-mode` holds `pct` (default, if the file is
+missing) or `dollar`. It is runtime state, not repo config — not tracked
+by git, not stowed. `/statusline:toggle-cost-display` (backed by
+`commands/statusline/statusline-toggle-cost.sh`) flips it. Only the
+enterprise budget segment is affected; the max-plan segments always show
+percentage.

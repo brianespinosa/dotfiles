@@ -62,10 +62,15 @@ colorize dir_part '1;34' "$display_cwd"
 # for the full cache contract)
 usage_part=""
 usage_cache="$HOME/Library/Caches/claude-usage/usage.json"
+cost_mode_file="$HOME/.claude/statusline-cost-mode"
+cost_mode="pct"
+[ -f "$cost_mode_file" ] && cost_mode="$(cat "$cost_mode_file")"
 if [ -f "$usage_cache" ]; then
-  usage_text=$(python3 - "$usage_cache" <<'PYEOF'
+  usage_text=$(python3 - "$usage_cache" "$cost_mode" <<'PYEOF'
 import sys, json
 from datetime import datetime
+
+cost_mode = sys.argv[2]
 
 # 3x the poller's 300s poll cadence (ADR-0018 in vu1-claude-token-usage) —
 # past this, a healthy-looking cached number is more likely stale than
@@ -174,7 +179,10 @@ try:
                 percent = coerce_float(spend.get('percent'))
                 if remaining_dollars is not None and percent is not None:
                     pct_remaining = clamp_pct(round(100 - percent))
-                    add_part(parts, pct_remaining, '💰 {}%'.format(pct_remaining))
+                    if cost_mode == 'dollar':
+                        add_part(parts, pct_remaining, '💰 ${:.2f}'.format(remaining_dollars))
+                    else:
+                        add_part(parts, pct_remaining, '💰 {}%'.format(pct_remaining))
     if parts:
         print(' '.join(parts))
 except Exception:
