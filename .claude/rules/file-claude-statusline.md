@@ -13,17 +13,17 @@ poller is the sole writer of this cache (see that repo's ADR-0018 and
 `docs/research/` for endpoint-specific knowledge). This repo does not need
 to know how the cache is produced, only its contract.
 
-## Cache contract (schema `version: 1`)
+## Cache contract (schema `version: 2`)
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "active_plan": "max" | "enterprise" | "unknown",
   "rate_limited": false,
   "updated_at": "...",
   "max": {
-    "five_hour": {"utilization": 43.5, "resets_at": "..."} | null,
-    "seven_day": {"utilization": 12.0, "resets_at": null} | null,
+    "session": {"utilization": 43.5, "resets_at": "..."} | null,
+    "week": {"utilization": 12.0, "resets_at": null} | null,
     "fetched_at": "..."
   },
   "enterprise": {
@@ -33,14 +33,14 @@ to know how the cache is produced, only its contract.
 }
 ```
 
-- Always check `version == 1` before trusting the rest of the document. A
+- Always check `version == 2` before trusting the rest of the document. A
   missing file, unreadable file, malformed JSON, non-object root, or a
-  version other than `1` must all silently produce no usage segment — this
+  version other than `2` must all silently produce no usage segment — this
   is also the expected degradation path on any machine that isn't running
   the poller.
 - `max` and `enterprise` are independently optional (a plan section is
   absent if it has never been fetched). Within each section, individual
-  fields (e.g. `five_hour`, `seven_day`, `spend`) can be `null` — render
+  fields (e.g. `session`, `week`, `spend`) can be `null` — render
   only the parts with non-null data, and skip a plan's segment when its
   section is absent, or when present but every field inside it is null.
 - `active_plan == "unknown"` renders no usage segment.
@@ -53,13 +53,15 @@ to know how the cache is produced, only its contract.
   signal is this cache, and a dead/unloaded poller or an auth error (not
   just a 429) leaves the file untouched indefinitely with no other
   warning. If `updated_at` is more than 900s old (3x the poller's 300s
-  cadence), or missing/unparseable on an otherwise-valid `version: 1`
+  cadence), or missing/unparseable on an otherwise-valid `version: 2`
   document, treat the numbers as stale and dim them. Either `rate_limited`
   or staleness dims; both conditions never remove the segment outright.
-- The schema version (`1`) is pinned in two places in this repo: this
+- The schema version (`2`) is pinned in two places in this repo: this
   rule doc and the `version` check in `statusline-command.sh`. If the
   vu1-claude-token-usage poller ever bumps its `SCHEMA_VERSION`, both must
-  move together.
+  move together. Bumped from `1` to `2` by the poller's ADR-0021
+  (limits-array cutover), which also renamed the `max` section's
+  `five_hour`/`seven_day` keys to `session`/`week`.
 
 ## Rendering gotchas carried over from the old implementation
 
