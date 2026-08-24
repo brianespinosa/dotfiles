@@ -58,7 +58,11 @@ is the normal personal `brianespinosa` account, so there is no `@bje/.envrc`; ev
 inherits from the root.
 
 Org directories match the GitHub org login exactly (so `@bjeco/` became `@bje/@bje-co/`), and orgs
-with no repos still get a directory. Current orgs: `@bje-co`, `@bork-ltd`, `@arsenalamerica`.
+with no repos still get a directory. Current orgs: `@bje-settings`, `@bje-co`, `@bork-ltd`,
+`@arsenalamerica`.
+
+Org and enterprise GitHub settings are managed as code in `@bje-settings/terraform`, not
+through the GitHub UI.
 
 Most repos under `@brianespinosa/` are expected to move into a `@bje` org over time; **forks are the
 exception** and stay on the personal user account.

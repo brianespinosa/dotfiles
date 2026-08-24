@@ -12,6 +12,7 @@ is held by the normal personal `brianespinosa` account, so credentials are inher
 
 | Org directory      | GitHub org       | Notes                                                      |
 | ------------------ | ---------------- | ---------------------------------------------------------- |
+| `@bje-settings/`   | `bje-settings`   | Enterprise and org configuration as code (`terraform`)     |
 | `@bje-co/`         | `bje-co`         | Primary org (`blocks`, `bje.co`, `cm`, `.github`)          |
 | `@bork-ltd/`       | `bork-ltd`       | No repos yet                                                |
 | `@arsenalamerica/` | `arsenalamerica` | Arsenal America; has its own `.envrc` for `VERCEL_TEAM_ID` |
@@ -31,6 +32,13 @@ Most repos currently under `~/Code/@brianespinosa/` (the personal user namespace
 move into an org inside this enterprise over time. Forks are the likely exception -- they stay on
 the personal user account. When a repo is transferred, move the local checkout to the matching
 `@bje/@<org>/` directory rather than leaving it under `@brianespinosa/`.
+
+## Configuration as code
+
+`@bje-settings/terraform` manages enterprise and org GitHub settings with the
+`integrations/github` Terraform provider, state in HCP Terraform, applies in GitHub
+Actions. Org settings, Actions policy, custom properties, and org rulesets are managed
+there rather than through the GitHub UI. `bje-co` is not yet covered.
 
 ## GitHub Credentials
 
