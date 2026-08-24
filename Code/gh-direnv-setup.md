@@ -32,10 +32,11 @@ Alternatives considered and rejected:
 ├── @mntv-web-experience/     ← inherits root .envrc → work ✓
 ├── @brianespinosa/
 │   └── .envrc                ← personal credentials (override) ✓
-├── @bjeco/
-│   └── .envrc                ← personal credentials (override) ✓
-└── @arsenalamerica/
-    └── .envrc                ← personal credentials (override) ✓
+└── @bje/                     ← bje enterprise orgs
+    ├── @bje-co/              ← inherits root .envrc → personal ✓
+    ├── @bork-ltd/            ← inherits root .envrc → personal ✓
+    └── @arsenalamerica/
+        └── .envrc            ← source_up + VERCEL_TEAM_ID ✓
 ```
 
 ## Setup Steps
