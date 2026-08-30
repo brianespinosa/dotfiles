@@ -42,8 +42,9 @@ A set of repositories supporting a 3D printing business. `bork` is always privat
 
 - **`bork`** — private; central repository for filament research, business data, and tooling
 - **`prusa-connect-auto-ready`** — webhook handler for Prusa Connect printer state automation
-- **`shippo-packing-slips`** — automated packing slip and label printer for Shippo orders; runs on a Raspberry Pi
 - **`3d-printer-profiles`** — custom slicer profiles for Prusa MK4S
+
+`shippo-packing-slips` moved to the `bork-ltd` org (`@bje/@bork-ltd/shippo-packing-slips`).
 
 ## Next.js App Repositories
 
