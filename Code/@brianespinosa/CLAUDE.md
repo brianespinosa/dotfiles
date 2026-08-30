@@ -2,6 +2,8 @@
 
 All repositories here are owned by the `@brianespinosa` GitHub user. This directory itself is **not** a git repository and must never be initialized as one — each subdirectory is its own independent git repo.
 
+Most repos here are being migrated into orgs under the `@bje` enterprise for easier management. Moving forward, repos at the user level will likely only be forks for doing open source work.
+
 Where possible, the goal is to have repositories in this directory share as much of the same tooling as possible. This file should explicitly call out which groups are sharing similar tooling.
 
 ## Security
@@ -38,13 +40,15 @@ Every consumer repo must have identical:
 
 ## Bork Tools Repositories
 
+> **Temporary section.** All bork and 3D printing repos are moving into the `bork-ltd` org
+> (`@bje/@bork-ltd/`) and being split up this week. `shippo-packing-slips` has already moved.
+> Once the rest have moved, delete this section.
+
 A set of repositories supporting a 3D printing business. `bork` is always private. Others may be open-sourced as standalone tools or eventually merged into `bork`.
 
 - **`bork`** — private; central repository for filament research, business data, and tooling
 - **`prusa-connect-auto-ready`** — webhook handler for Prusa Connect printer state automation
 - **`3d-printer-profiles`** — custom slicer profiles for Prusa MK4S
-
-`shippo-packing-slips` moved to the `bork-ltd` org (`@bje/@bork-ltd/shippo-packing-slips`).
 
 ## Next.js App Repositories
 
