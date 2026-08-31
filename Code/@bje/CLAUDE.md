@@ -40,6 +40,33 @@ the personal user account. When a repo is transferred, move the local checkout t
 Actions. Org settings, Actions policy, custom properties, and org rulesets are managed
 there rather than through the GitHub UI. `bje-co` is not yet covered.
 
+## Enterprise rulesets
+
+Three rulesets defined at the enterprise level apply to repos in every org. They are **not**
+managed in terraform today (the `org-baseline` module defines an optional org-level
+`default_branch_ruleset`, but nothing covers enterprise rulesets); they were created in the
+GitHub UI.
+
+| Ruleset (id)                                     | Target | Enforcement | Effect                                                                                                               |
+| ------------------------------------------------ | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| Protect main (21295778)                          | branch | active      | Blocks deletion and force pushes on the default branch; requires a PR (0 approvals; merge/squash/rebase all allowed) |
+| Code Coverage (21882789)                         | branch | active      | Requires 95% minimum code coverage, no max-drop limit                                                                 |
+| Enterprise Custom Agent Configuration (21295581) | push   | disabled    | No effect while disabled                                                                                              |
+
+Orgs and repos layer additional rulesets on top (e.g. the `bje-co` org ruleset "Protect default
+branch" adds copilot code review; `arsenalamerica/app` repo rulesets add required status checks
+and a required Preview deployment).
+
+Inspecting rulesets with `gh`:
+
+- `gh api orgs/<org>/rulesets` lists everything applying to an org, including enterprise-sourced
+  rulesets (`source_type: Enterprise`).
+- `gh api repos/<owner>/<repo>/rules/branches/<branch>` shows the effective merged rules for a
+  branch, with each rule's source.
+- Enterprise-level endpoints (`gh api enterprises/bje/rulesets`) need the `admin:enterprise`
+  scope, which the normal gh session does not carry. Full conditions and targeting of enterprise
+  rulesets are only readable there or in the UI.
+
 ## GitHub Credentials
 
 Inherited from `~/Code/.envrc` (personal `brianespinosa` account, `~/.config/gh/personal`). No
