@@ -56,15 +56,9 @@ Orgs and repos layer additional rulesets on top (e.g. the `bje-co` org ruleset "
 branch" adds copilot code review; `arsenalamerica/app` repo rulesets add required status checks
 and a required Preview deployment).
 
-Inspecting rulesets with `gh`:
-
-- `gh api orgs/<org>/rulesets` lists everything applying to an org, including enterprise-sourced
-  rulesets (`source_type: Enterprise`).
-- `gh api repos/<owner>/<repo>/rules/branches/<branch>` shows the effective merged rules for a
-  branch, with each rule's source.
-- Enterprise-level endpoints (`gh api enterprises/bje/rulesets`) need the `admin:enterprise`
-  scope, which the normal gh session does not carry. Full conditions and targeting of enterprise
-  rulesets are only readable there or in the UI.
+Any repo moved into this enterprise must have its CI updated to share coverage, since the Code
+Coverage ruleset applies to every repo. Code quality is already enabled for all repos by default
+in every org.
 
 ## GitHub Credentials
 
