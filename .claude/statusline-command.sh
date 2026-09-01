@@ -175,7 +175,7 @@ try:
                 fable_util = coerce_float(fable.get('utilization'))
                 if fable_util is not None:
                     fable_remaining = clamp_pct(round(100 - fable_util))
-                    add_part(parts, fable_remaining, '🤓 {}%'.format(fable_remaining))
+                    add_part(parts, fable_remaining, 'f: {}%'.format(fable_remaining))
     elif active_plan == 'enterprise':
         enterprise_section = data.get('enterprise')
         if enterprise_section is not None:
