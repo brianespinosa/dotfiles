@@ -14,7 +14,8 @@ is held by the normal personal `brianespinosa` account, so credentials are inher
 | ------------------ | ---------------- | ---------------------------------------------------------- |
 | `@bje-settings/`   | `bje-settings`   | Enterprise and org configuration as code (`terraform`)     |
 | `@bje-co/`         | `bje-co`         | Primary org (`blocks`, `bje.co`, `cm`, `.github`)          |
-| `@bork-ltd/`       | `bork-ltd`       | No repos yet                                                |
+| `@bje-actions/`    | `bje-actions`    | Public reusable Actions/workflows (`conflict-label`)      |
+| `@bork-ltd/`       | `bork-ltd`       | `shippo-packing-slips`                                     |
 | `@arsenalamerica/` | `arsenalamerica` | Arsenal America; has its own `.envrc` for `VERCEL_TEAM_ID` |
 
 ## Directory Structure
