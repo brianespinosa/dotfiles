@@ -170,6 +170,12 @@ try:
                 if week_util is not None:
                     week_remaining = clamp_pct(round(100 - week_util))
                     add_part(parts, week_remaining, '7d: {}%'.format(week_remaining))
+            fable = max_section.get('fable')
+            if fable is not None:
+                fable_util = coerce_float(fable.get('utilization'))
+                if fable_util is not None:
+                    fable_remaining = clamp_pct(round(100 - fable_util))
+                    add_part(parts, fable_remaining, 'fable: {}%'.format(fable_remaining))
     elif active_plan == 'enterprise':
         enterprise_section = data.get('enterprise')
         if enterprise_section is not None:
