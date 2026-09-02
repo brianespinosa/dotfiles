@@ -43,15 +43,17 @@ there rather than through the GitHub UI. `bje-co` is not yet covered.
 
 ## Enterprise rulesets
 
-Two rulesets defined at the enterprise level apply to repos in every org. They are **not**
+Three rulesets defined at the enterprise level apply to repos in every org. They are **not**
 managed in terraform today (the `org-baseline` module defines an optional org-level
-`default_branch_ruleset`, but nothing covers enterprise rulesets); they were created in the
-GitHub UI.
+`default_branch_ruleset`, disabled by default, but nothing covers enterprise rulesets). The
+first two were created in the GitHub UI; Conflict label was created from the committed
+`rulesets/enterprise-conflict-label.json` in `bje-actions/conflict-label`.
 
 | Ruleset (id)                                     | Target | Enforcement | Effect                                                                                                               |
 | ------------------------------------------------ | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |
 | Protect main (21295778)                          | branch | active      | Blocks deletion and force pushes on the default branch; requires a PR (0 approvals; merge/squash/rebase all allowed) |
 | Code Coverage (21882789)                         | branch | active      | Requires 95% minimum code coverage, no max-drop limit                                                                 |
+| Conflict label (22057296)                        | branch | active      | Requires the `bje-actions/conflict-label` workflow on every PR to keep a `conflicting` label in sync; no bypass       |
 
 Orgs and repos layer additional rulesets on top (e.g. the `bje-co` org ruleset "Protect default
 branch" adds copilot code review; `arsenalamerica/app` repo rulesets add required status checks
