@@ -27,6 +27,13 @@ Org directories use the `@` prefix and match the GitHub org login exactly, the s
 Orgs with no repos still get a directory so the enterprise layout stays complete and clone targets
 are obvious.
 
+## Claude plugins
+
+`@bje-settings/claude` is where Claude Code plugins for this enterprise are built and shared, via
+a plugin marketplace (`.claude-plugin/marketplace.json`) -- primarily for `@bje` repos, but
+sometimes shared outside the enterprise too. See its own `CLAUDE.md` for the marketplace and
+plugin layout.
+
 ## Migration from `@brianespinosa`
 
 Most repos currently under `~/Code/@brianespinosa/` (the personal user namespace) are expected to
