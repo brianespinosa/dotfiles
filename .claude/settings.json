@@ -146,7 +146,10 @@
     "playwright@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
-    "gh-security@skills": true
+    "gh-security@skills": true,
+    "workstreams@bje": true,
+    "gh@bje": true,
+    "field-test@bje": true
   },
   "extraKnownMarketplaces": {
     "medusa": {
@@ -163,8 +166,14 @@
     },
     "skills": {
       "source": {
-        "source": "github",
-        "repo": "SurveyMonkey/skills"
+        "source": "directory",
+        "path": "/Users/bespinosa/Code/@SurveyMonkey/skills"
+      }
+    },
+    "bje": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/bespinosa/Code/@bje/@bje-settings/claude"
       }
     }
   },
