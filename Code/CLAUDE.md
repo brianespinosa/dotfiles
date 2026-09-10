@@ -78,3 +78,22 @@ See `@bje/CLAUDE.md`.
 - **New repo in an existing `bje` org:** Clone into `@bje/@<org-login>/<repo-name>`.
 - **New personal `@*` directory:** No action -- inherits personal credentials from root automatically.
 - **Forks:** Keep under `@brianespinosa/`; they are not moved into `@bje`.
+
+## LEAD+ 2026
+
+Presentation and workshop for SurveyMonkey Director+ leadership (Toronto). Work is tracked
+with a `LEAD+ 2026` milestone in every repo that carries related work. Any issue for this
+effort goes into one of these milestones. Add a row here whenever a new milestone is created.
+
+| Repo                                                   | Milestone                                                        |
+| ------------------------------------------------------ | ---------------------------------------------------------------- |
+| `@momentive_emu/@bespinosa_mntv/decks` (deck, run of show) | https://github.com/bespinosa_mntv/decks/milestone/1          |
+| `@sm-incubator/poc-report`                             | https://github.com/sm-incubator/poc-report/milestone/2           |
+| `@sm-incubator/poc-referrals`                          | https://github.com/sm-incubator/poc-referrals/milestone/9        |
+| `@sm-incubator/org-containers` (Codespaces, spikes)    | https://github.com/sm-incubator/org-containers/milestone/1       |
+| `@sm-incubator/org-claude` (facilitation rule, skills) | https://github.com/sm-incubator/org-claude/milestone/2           |
+
+Companion artifacts in the decks repo:
+
+- Deck: `LEAD+ 2026 Multiplayer AI SDLC.iapresenter/`
+- Run of show: `LEAD+ 2026 Run of Show.md`
