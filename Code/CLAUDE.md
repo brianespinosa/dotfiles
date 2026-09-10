@@ -93,7 +93,7 @@ effort goes into one of these milestones. Add a row here whenever a new mileston
 | `@sm-incubator/org-containers` (Codespaces, spikes)    | https://github.com/sm-incubator/org-containers/milestone/1       |
 | `@sm-incubator/org-claude` (facilitation rule, skills) | https://github.com/sm-incubator/org-claude/milestone/2           |
 
-Companion artifacts in the decks repo:
+Companion artifacts in the decks repo (`@momentive_emu/@bespinosa_mntv/decks`):
 
-- Deck: `LEAD+ 2026 Multiplayer AI SDLC.iapresenter/`
-- Event plan: `LEAD+ 2026 Event Plan.md`
+- Event plan: [`LEAD+ 2026 Event Plan.md`](https://github.com/bespinosa_mntv/decks/blob/main/LEAD%2B%202026%20Event%20Plan.md)
+- Deck: [`LEAD+ 2026 Multiplayer AI SDLC.iapresenter/`](https://github.com/bespinosa_mntv/decks/tree/main/LEAD%2B%202026%20Multiplayer%20AI%20SDLC.iapresenter)
