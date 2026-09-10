@@ -87,7 +87,7 @@ effort goes into one of these milestones. Add a row here whenever a new mileston
 
 | Repo                                                   | Milestone                                                        |
 | ------------------------------------------------------ | ---------------------------------------------------------------- |
-| `@momentive_emu/@bespinosa_mntv/decks` (deck, run of show) | https://github.com/bespinosa_mntv/decks/milestone/1          |
+| `@momentive_emu/@bespinosa_mntv/decks` (deck, event plan)  | https://github.com/bespinosa_mntv/decks/milestone/1          |
 | `@sm-incubator/poc-report`                             | https://github.com/sm-incubator/poc-report/milestone/2           |
 | `@sm-incubator/poc-referrals`                          | https://github.com/sm-incubator/poc-referrals/milestone/9        |
 | `@sm-incubator/org-containers` (Codespaces, spikes)    | https://github.com/sm-incubator/org-containers/milestone/1       |
@@ -96,4 +96,4 @@ effort goes into one of these milestones. Add a row here whenever a new mileston
 Companion artifacts in the decks repo:
 
 - Deck: `LEAD+ 2026 Multiplayer AI SDLC.iapresenter/`
-- Run of show: `LEAD+ 2026 Run of Show.md`
+- Event plan: `LEAD+ 2026 Event Plan.md`
