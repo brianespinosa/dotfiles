@@ -1,3 +1,4 @@
 --target=/Users/bespinosa
 --ignore=^\.stowrc$
 --ignore=\.claude/settings\.json
+--ignore=^CLAUDE\.md$

@@ -9,6 +9,12 @@ Any edit to a file in this repo takes effect immediately via symlinks, but does 
 to other machines until committed and pushed to `main`. After making changes, always commit
 and push before closing the session.
 
+## This CLAUDE.md is NOT stowed
+
+`.stowrc` ignores the repo-root `CLAUDE.md` (`^CLAUDE\.md$`). Stowing it to `~/CLAUDE.md`
+would load it as an ancestor in every session under `$HOME`. Nested `CLAUDE.md` files
+(`.claude/`, `Code/`) are still stowed.
+
 ## .claude/settings.json is NOT stowed
 
 `~/.claude/settings.json` is a real file, not a symlink. It is excluded from stow via an
