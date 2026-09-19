@@ -1,35 +1,30 @@
-# ~/Code — Workspace Root
+# ~/Code: Workspace Root
 
-## GitHub Credentials
+Not a git repository. Each org directory has its own `CLAUDE.md` with org-specific context.
 
-This workspace uses **direnv** + **gh CLI** to automatically configure the correct GitHub account per directory. No credentials are hardcoded anywhere.
+## Directories and GitHub accounts
 
-### Directory → Account Mapping
+**direnv** + **gh CLI** select the GitHub account per directory. No credentials are hardcoded.
 
-| Directory pattern         | GitHub account             | Notes                                                                                                            |
-| ------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `@momentive_emu/@mntv-*/` | `bespinosa_mntv` (work)    | Inherits from `@momentive_emu/.envrc`                                                                            |
-| `@SurveyMonkey/`          | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code                           |
-| `@sm-incubator/`          | `brianespinosa` (personal) | `source_up` from root `.envrc` + work Anthropic Enterprise OAuth token for Claude Code (same as `@SurveyMonkey`) |
-| `@bje/@*/`                | `brianespinosa` (personal) | Inherits from root `.envrc` (bje is not an EMU; no enterprise-level `.envrc`)                                    |
-| `@brianespinosa/`         | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
-| Everything else           | `brianespinosa` (personal) | Inherits from root `.envrc`                                                                                      |
+| Directory         | Contents                                                        | GitHub account             | `.envrc`                                          |
+| ----------------- | --------------------------------------------------------------- | -------------------------- | ------------------------------------------------- |
+| `@momentive_emu/` | SurveyMonkey internal/private repos (EMU), in `@mntv-*/` orgs   | `bespinosa_mntv` (work)    | Own `.envrc` sets the work account                |
+| `@SurveyMonkey/`  | SurveyMonkey open source repos (public org)                     | `brianespinosa` (personal) | `source_up` from root, adds non-GitHub vars only  |
+| `@sm-incubator/`  | SurveyMonkey incubator repos (public org, not in the EMU)       | `brianespinosa` (personal) | `source_up` from root, adds non-GitHub vars only  |
+| `@bje/@*/`        | `bje` enterprise orgs (not an EMU). See `@bje/CLAUDE.md`        | `brianespinosa` (personal) | Inherits root                                     |
+| `@brianespinosa/` | Personal user repos; long term, forks only                      | `brianespinosa` (personal) | Inherits root                                     |
+| Everything else   |                                                                 | `brianespinosa` (personal) | Inherits root                                     |
 
-### Environment Variables Set by direnv
+## direnv variables
 
-> _Do not_ set these variables manually. They will already be present in the environment.
+Already present in every `~/Code` subdirectory. Do not set them manually.
 
-- `GH_CONFIG_DIR` — points `gh` CLI to the correct stored auth session
-- `GITHUB_PAT` — fetched dynamically via `gh auth token` from the active session
-- `GIT_CONFIG_GLOBAL` — points `git` to the correct per-profile global config
+- `GH_CONFIG_DIR`: points `gh` at the correct stored auth session
+- `GITHUB_PAT`: fetched via `gh auth token` from the active session
+- `GIT_CONFIG_GLOBAL`: points `git` at the correct per-profile global config
 
-### Using gh in subdirectories
-
-`GH_CONFIG_DIR` is always exported in every `~/Code` subdirectory by direnv. Never prefix `gh` commands with `GH_CONFIG_DIR=...` — it is redundant and obscures intent. Run `gh <subcommand>` directly; it uses the correct account for the current directory automatically.
-
-If `gh` ever picks the wrong account, the fix is to verify direnv is loaded (`direnv status`), not to override the env var inline.
-
-### Auth Sessions / Config Files
+Never prefix `gh` commands with `GH_CONFIG_DIR=...`. Run `gh <subcommand>` directly. If `gh` picks
+the wrong account, verify direnv is loaded (`direnv status`) instead of overriding the variable.
 
 | Tool  | Personal                 | Work                 |
 | ----- | ------------------------ | -------------------- |
@@ -38,62 +33,11 @@ If `gh` ever picks the wrong account, the fix is to verify direnv is loaded (`di
 
 Both git profiles include `~/.config/git/base` for shared settings.
 
-## Workspace Structure
+## Cloning and new directories
 
-| Directory          | Purpose                                                                                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@momentive_emu/`  | SurveyMonkey internal/private repos (EMU) -- uses `bespinosa_mntv` account                                                                                      |
-| `@SurveyMonkey/`   | SurveyMonkey open source repos (public org) -- uses `brianespinosa` account                                                                                     |
-| `@sm-incubator/`   | SurveyMonkey incubator repos (public org; not in EMU) -- experiments for new products/startups that may later move into the EMU -- uses `brianespinosa` account |
-| `@brianespinosa/`  | Personal repos -- uses `brianespinosa` account                                                                                                                  |
-| `@bje/`            | `bje` enterprise -- personal orgs consolidated under one enterprise; uses `brianespinosa` account                                                                |
-
-Each org directory has its own `CLAUDE.md` with org-specific context (git workflow, toolchain, worktree conventions).
-
-### The `@bje` Enterprise
-
-`@bje/` is a GitHub enterprise (billing contact `b@bje.co`) consolidating several personal orgs so
-policy and automation are managed once across many repositories. It is **not** an EMU -- membership
-is the normal personal `brianespinosa` account, so there is no `@bje/.envrc`; everything under it
-inherits from the root.
-
-Org directories match the GitHub org login exactly (so `@bjeco/` became `@bje/@bje-co/`), and orgs
-with no repos still get a directory. Current orgs: `@bje-settings`, `@bje-actions`, `@bje-co`,
-`@bork-ltd`, `@arsenalamerica`.
-
-Org and enterprise GitHub settings are managed as code in `@bje-settings/terraform`, not
-through the GitHub UI.
-
-Most repos under `@brianespinosa/` are expected to move into a `@bje` org over time; **forks are the
-exception** and stay on the personal user account.
-
-See `@bje/CLAUDE.md`.
-
-### Adding New Directories
-
-- **New SurveyMonkey internal (`@mntv-*`) repo:** Place it inside `@momentive_emu/` -- inherits work credentials automatically.
-- **New SurveyMonkey open source repo:** Clone it into `@SurveyMonkey/` -- inherits personal credentials from root automatically.
-- **New SurveyMonkey incubator repo:** Clone it into `@sm-incubator/` -- inherits personal GitHub credentials from root, plus the work Anthropic Enterprise OAuth token for Claude Code (via `@sm-incubator/.envrc`, same pattern as `@SurveyMonkey`).
-- **New `bje` enterprise org:** Create `@bje/@<org-login>/` -- inherits personal credentials from root automatically. Do this even if the org has no repos yet.
-- **New repo in an existing `bje` org:** Clone into `@bje/@<org-login>/<repo-name>`.
-- **New personal `@*` directory:** No action -- inherits personal credentials from root automatically.
-- **Forks:** Keep under `@brianespinosa/`; they are not moved into `@bje`.
-
-## LEAD+ 2026
-
-Presentation and workshop for SurveyMonkey Director+ leadership (Toronto). Work is tracked
-with a `LEAD+ 2026` milestone in every repo that carries related work. Any issue for this
-effort goes into one of these milestones. Add a row here whenever a new milestone is created.
-
-| Repo                                                   | Milestone                                                        |
-| ------------------------------------------------------ | ---------------------------------------------------------------- |
-| `@momentive_emu/@bespinosa_mntv/decks` (deck, event plan)  | https://github.com/bespinosa_mntv/decks/milestone/1          |
-| `@sm-incubator/poc-report`                             | https://github.com/sm-incubator/poc-report/milestone/2           |
-| `@sm-incubator/poc-referrals`                          | https://github.com/sm-incubator/poc-referrals/milestone/9        |
-| `@sm-incubator/org-containers` (Codespaces, spikes)    | https://github.com/sm-incubator/org-containers/milestone/1       |
-| `@sm-incubator/org-claude` (facilitation rule, skills) | https://github.com/sm-incubator/org-claude/milestone/2           |
-
-Companion artifacts in the decks repo (`@momentive_emu/@bespinosa_mntv/decks`):
-
-- Event plan: [`LEAD+ 2026 Event Plan.md`](https://github.com/bespinosa_mntv/decks/blob/main/LEAD%2B%202026%20Event%20Plan.md)
-- Deck: [`LEAD+ 2026 Multiplayer AI SDLC.iapresenter/`](https://github.com/bespinosa_mntv/decks/tree/main/LEAD%2B%202026%20Multiplayer%20AI%20SDLC.iapresenter)
+- Clone into the directory matching the repo's org: `@momentive_emu/@<org>/<repo>`,
+  `@bje/@<org-login>/<repo>`, `@SurveyMonkey/<repo>`, `@sm-incubator/<repo>`. Credentials are
+  inherited automatically.
+- Org directories use the `@` prefix and match the GitHub org login exactly.
+- A new `bje` org gets a `@bje/@<org-login>/` directory even if it has no repos yet.
+- Forks stay under `@brianespinosa/`; they do not move into `@bje`.
