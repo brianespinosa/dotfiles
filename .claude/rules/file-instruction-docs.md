@@ -7,7 +7,6 @@ paths:
 
 # Instruction Documents
 
-Covers CLAUDE.md, README.md, and everything under `.claude/` (rules, skills, agents, commands).
 Official guidance: <https://code.claude.com/docs/en/memory> and
 <https://code.claude.com/docs/en/best-practices>.
 
