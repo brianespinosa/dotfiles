@@ -1,10 +1,10 @@
-# Multi-User GitHub CLI + MCP via direnv
+# Multi-User GitHub CLI via direnv
 
 A guide for configuring per-directory GitHub credentials on a machine with multiple GitHub accounts, without hardcoded tokens.
 
 ## Problem
 
-When working with multiple GitHub accounts (e.g. personal and work), the `gh` CLI defaults to one active user. Switching manually is global and error-prone. The GitHub MCP server needs a `GITHUB_PAT` env var that should differ per directory tree.
+When working with multiple GitHub accounts (e.g. personal and work), the `gh` CLI defaults to one active user. Switching manually is global and error-prone. `gh` and git both need credentials that should differ per directory tree.
 
 ## Solution Overview
 
@@ -83,34 +83,6 @@ This means:
 - `~/.config/gh/personal/` and `~/.config/gh/work/` use macOS Keychain (no plaintext)
 - `~/Web/` is not a git repo — `.envrc` files here cannot be accidentally committed
 - `direnv allow` stores a hash of each `.envrc`; modifications are blocked until re-approved
-
-## GitHub MCP Integration
-
-Per-repo MCP config lives in `.mcp.json` at the repo root (committed). It references `${GITHUB_PAT}`:
-
-```json
-{
-  "mcpServers": {
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp",
-      "headers": {
-        "Authorization": "Bearer ${GITHUB_PAT}"
-      }
-    }
-  }
-}
-```
-
-Local opt-in via `.claude/settings.local.json`:
-```json
-{
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["github"]
-}
-```
-
-Token scopes required by the MCP: `repo`, `read:org`, `read:packages`, `notifications`, `security_events`, `gist`, `project`.
 
 ## Token freshness
 
