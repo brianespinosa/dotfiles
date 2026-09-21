@@ -28,6 +28,8 @@ Official guidance: <https://code.claude.com/docs/en/memory> and
 
 ## Before finalizing
 
+- **Rot.** Verify the claims already in the file against the current repo: paths, `file:line`
+  references, commands, versions, and tool behavior. Suggest fixes for whatever no longer holds.
 - **Redundancy.** Check content against active rules in `~/.claude/rules/` and project
   `.claude/rules/`. Suggest removing what a rule already covers.
 - **Extraction.** Move content that fits better as a rule. See `path-claude-rules.md` for prefix
