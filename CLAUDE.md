@@ -1,42 +1,17 @@
 # Dotfiles
 
-This repo is managed with [GNU Stow](https://www.gnu.org/software/stow/). Files are symlinked
-to `$HOME` via the `.stowrc` target setting.
+Managed with [GNU Stow](https://www.gnu.org/software/stow/); files are symlinked to `$HOME` via the
+`.stowrc` target setting.
 
-## Changes must be committed and pushed
-
-Any edit to a file in this repo takes effect immediately via symlinks, but does not propagate
-to other machines until committed and pushed to `main`. After making changes, always commit
-and push before closing the session.
-
-## This CLAUDE.md is NOT stowed
-
-`.stowrc` ignores the repo-root `CLAUDE.md` (`^CLAUDE\.md$`). Stowing it to `~/CLAUDE.md`
-would load it as an ancestor in every session under `$HOME`. Nested `CLAUDE.md` files
-(`.claude/`, `Code/`) are still stowed.
-
-## .claude/settings.json is NOT stowed
-
-`~/.claude/settings.json` is a real file, not a symlink. It is excluded from stow via an
-`--ignore` rule in `.stowrc` because Claude Code writes runtime state into it (`model`,
-`effortLevel`, and other `/config` changes), which would constantly dirty this repo.
-
-The copy in this repo is the curated baseline. Rules:
-
-- Never commit runtime-state churn (`model`, `effortLevel`, theme, and similar toggles).
-- Only commit deliberate opt-ins: enabling plugins, permissions, hooks, statusLine, and
-  other configuration meant to sync across machines.
-- Because the file is not symlinked, deliberate config changes made to
-  `~/.claude/settings.json` must be manually copied into `.claude/settings.json` in this
-  repo, then committed and pushed.
-
-## New files must be stowed
-
-Adding a new file to this repo does not automatically create a symlink in `$HOME`. After
-adding a new file or directory, run stow from the repo root to create the symlink:
-
-```bash
-stow .
-```
-
-Verify the symlink was created with `ls -la ~/<path-to-file>`.
+- Edits take effect immediately through the symlinks but do not reach other machines until
+  committed and pushed to `main`. After making changes, tell the user the tree is dirty and offer
+  to commit and push.
+- Adding a file does not create its symlink. Run `stow .` from the repo root after adding one and
+  `stow -R .` after a rename or delete, then verify with `ls -la ~/<path-to-file>`.
+- The repo-root `CLAUDE.md` is not stowed (`.stowrc` ignores `^CLAUDE\.md$`); at `~/CLAUDE.md` it
+  would load as an ancestor in every session under `$HOME`. Nested `CLAUDE.md` files are stowed.
+- `~/.claude/settings.json` is a real file, not a symlink (`.stowrc --ignore`), because Claude Code
+  writes runtime state into it. `.claude/settings.json` here is the curated baseline: commit only
+  deliberate opt-ins (plugins, permissions, hooks, statusLine), never runtime churn (`model`,
+  `effortLevel`, theme). Deliberate changes made in `~/.claude/settings.json` must be copied here
+  manually.
