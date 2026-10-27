@@ -52,3 +52,7 @@ alias dx="docker exec -it"
 
 # Misc
 alias cl='clear'
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/bespinosa/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
