@@ -47,9 +47,12 @@ All three dotfiles repos stow into `$HOME` and own separate paths.
 | `~/Code/@momentive_emu/.envrc` | `bespinosa_mntv/dotfiles` |
 | `~/Code/@SurveyMonkey/.envrc`, `~/Code/@sm-incubator/.envrc` | `bespinosa_mntv/dotfiles` |
 | `~/.config/git/work` | `bespinosa_mntv/dotfiles` |
+| `~/.aws/config` | `bespinosa_mntv/dotfiles` |
+| `~/.config/npm/work`, `~/.local/bin/codeartifact-token`, `~/.local/bin/codeartifact-auth-header` | `bespinosa_mntv/dotfiles` |
+| `~/.npmrc` (public npm; the token comes from Keychain through `NPM_TOKEN`) | `brianespinosa/dotfiles-private` |
 | `~/.config/gh/*` | None: written by `gh auth login` (see below) |
 
-`~/.config/git/` must be a real directory, not a symlink, because two repos link files into it. The same goes for `~/.config`, `~/Code/@SurveyMonkey` and `~/Code/@sm-incubator`. If one of them is missing when you run `stow`, stow folds it into a single link to one repo, and anything written there later lands inside that repo. Create the directory first.
+`~/.config/git/` must be a real directory, not a symlink, because two repos link files into it. The same goes for `~/.config`, `~/.config/npm`, `~/.local/bin`, `~/.aws`, `~/Code/@SurveyMonkey` and `~/Code/@sm-incubator`. If one of them is missing when you run `stow`, stow folds it into a single link to one repo, and anything written there later lands inside that repo. Create the directory first.
 
 ## Setup
 

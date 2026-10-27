@@ -33,6 +33,28 @@ the wrong account, verify direnv is loaded (`direnv status`) instead of overridi
 
 Both git profiles include `~/.config/git/base` for shared settings.
 
+## AWS and CodeArtifact
+
+`@momentive_emu/` installs packages through SurveyMonkey's CodeArtifact: its `.envrc` points npm
+and pnpm at `~/.config/npm/work` and sets `AWS_PROFILE=eng-devplatform-ro`. Repos use it by default; keep
+them on it. A repo that must use public npm instead says so in its own committed config, which
+wins over the user one: `registry:` in `pnpm-workspace.yaml` for pnpm 11+, or `registry=` in
+`.npmrc` for older pnpm (`mntv-pxo/feature-requests-app` does). That is the only way to change a
+repo's registry.
+
+- **pnpm** gets a fresh token on every run from `~/.local/bin/codeartifact-auth-header`
+  (`tokenHelper`). Nothing to do. When `CODEARTIFACT_AUTH_TOKEN` is unset, pnpm 12 warns
+  `Failed to replace env in config: ${CODEARTIFACT_AUTH_TOKEN}`; that is harmless for pnpm.
+- **npm** has no helper and reads `CODEARTIFACT_AUTH_TOKEN`, which direnv set when the session
+  started and which expires after about an hour. Run npm as
+  `CODEARTIFACT_AUTH_TOKEN=$(codeartifact-token) npm <command>`.
+
+Both depend on an AWS SSO session, which expires regularly. Signs: a `401` from
+`*.codeartifact.*`, `TOKEN_HELPER_ERROR_STATUS`, or `codeartifact-token` reporting an expired
+session. Confirm with `aws sts get-caller-identity`. If that fails, stop and ask the user to run
+`! smaws` (it opens a browser to sign in), then retry. Never work around an auth failure by
+switching registries (`--registry`, editing an npmrc) or deleting a lockfile.
+
 ## Cloning and new directories
 
 - Clone into the directory matching the repo's org: `@momentive_emu/@<org>/<repo>`,
