@@ -1,47 +1,59 @@
 # Multi-User GitHub CLI via direnv
 
-A guide for configuring per-directory GitHub credentials on a machine with multiple GitHub accounts, without hardcoded tokens.
+How `~/Code` gives each directory tree its own GitHub account and git identity, with no hardcoded tokens.
 
 ## Problem
 
-When working with multiple GitHub accounts (e.g. personal and work), the `gh` CLI defaults to one active user. Switching manually is global and error-prone. `gh` and git both need credentials that should differ per directory tree.
+Two GitHub accounts share this machine: personal (`brianespinosa`) and work (`bespinosa_mntv`, in the `momentive_emu` EMU). The `gh` CLI defaults to one active user, and switching it is global. `gh` and git both need credentials that differ per directory tree.
 
-## Solution Overview
+## How it works
 
-- **direnv** loads `.envrc` files on `cd`, making env vars directory-aware
-- **`GH_CONFIG_DIR`** tells `gh` which stored auth session to use (isolated per-account config dirs)
-- **`gh auth token`** dynamically returns the OAuth token for the active account in the given config dir
-- One root `.envrc` sets a default account; personal directories override it
+- **direnv** loads the nearest `.envrc` on `cd`, so env vars follow the directory.
+- **`GH_CONFIG_DIR`** points `gh` at one account's config directory.
+- **`gh auth token`** returns that account's OAuth token, which `.envrc` exports as `GITHUB_PAT`.
+- **`GIT_CONFIG_GLOBAL`** points git at that account's global config, which sets the commit identity and routes GitHub credentials through `gh`.
+- The root `~/Code/.envrc` sets the personal account. `@momentive_emu/.envrc` overrides it with work.
 
-## Why GH_CONFIG_DIR?
+`GH_CONFIG_DIR` is process-scoped, so two terminals in different trees use different accounts at once. `gh auth switch` was rejected because it changes the active user for every terminal. Hardcoded PATs were rejected because they need manual rotation and sit in plaintext.
 
-Alternatives considered and rejected:
-- **`gh auth switch`** — changes active user globally across all terminals; two concurrent sessions would stomp each other
-- **Hardcoded PATs in a secrets file** — requires manual rotation, plaintext risk
-- **macOS Keychain via `security` command** — fragile, ties to implementation details of how gh stores tokens
-
-`GH_CONFIG_DIR` is process-scoped. Each shell gets its own env, so two terminals in different directories simultaneously use different credentials with no conflict.
-
-## Directory Structure
+## Directory structure
 
 ```
-~/Web/
-├── .envrc                    ← work credentials (root default)
-├── @mntv-actions/            ← inherits root .envrc → work ✓
-├── @mntv-analysis/           ← inherits root .envrc → work ✓
-├── @mntv-web-experience/     ← inherits root .envrc → work ✓
-├── @brianespinosa/
-│   └── .envrc                ← personal credentials (override) ✓
-└── @bje/                     ← bje enterprise orgs
-    ├── @bje-co/              ← inherits root .envrc → personal ✓
-    ├── @bork-ltd/            ← inherits root .envrc → personal ✓
-    └── @arsenalamerica/
-        └── .envrc            ← source_up + VERCEL_TEAM_ID ✓
+~/Code/
+├── .envrc                    ← personal (root default)
+├── @brianespinosa/           ← inherits root → personal
+├── @bje/@*/                  ← inherits root → personal
+│   └── @arsenalamerica/
+│       └── .envrc            ← source_up + VERCEL_TEAM_ID
+├── @SurveyMonkey/
+│   └── .envrc                ← source_up (personal) + work Claude Code token
+├── @sm-incubator/
+│   └── .envrc                ← source_up (personal) + Claude Code settings
+└── @momentive_emu/
+    └── .envrc                ← work: gh, git, AWS and CodeArtifact
 ```
 
-## Setup Steps
+`@SurveyMonkey` and `@sm-incubator` are public orgs outside the EMU, so they use the personal account.
 
-### 1. Create per-account gh config directories
+## Which repo provides each file
+
+All three dotfiles repos stow into `$HOME` and own separate paths.
+
+| File | Repo |
+|---|---|
+| `~/Code/.envrc` | `brianespinosa/dotfiles` |
+| `~/.config/git/base`, `ignore`, `personal` | `brianespinosa/dotfiles` |
+| `~/Code/@bje/@arsenalamerica/.envrc` | `brianespinosa/dotfiles-private` |
+| `~/Code/@momentive_emu/.envrc` | `bespinosa_mntv/dotfiles` |
+| `~/Code/@SurveyMonkey/.envrc`, `~/Code/@sm-incubator/.envrc` | `bespinosa_mntv/dotfiles` |
+| `~/.config/git/work` | `bespinosa_mntv/dotfiles` |
+| `~/.config/gh/*` | None: written by `gh auth login` (see below) |
+
+`~/.config/git/` must be a real directory, not a symlink, because two repos link files into it. The same goes for `~/.config`, `~/Code/@SurveyMonkey` and `~/Code/@sm-incubator`. If one of them is missing when you run `stow`, stow folds it into a single link to one repo, and anything written there later lands inside that repo. Create the directory first.
+
+## Setup
+
+### 1. Log in each account to its own config directory
 
 ```bash
 GH_CONFIG_DIR=~/.config/gh/personal gh auth login \
@@ -51,39 +63,69 @@ GH_CONFIG_DIR=~/.config/gh/work gh auth login \
   --scopes "read:packages,notifications,security_events,project"
 ```
 
-`--scopes` is additive — it adds to gh's default scopes (`repo`, `read:org`, `gist`, `workflow`). The resulting token is more capable, not less.
+`--scopes` adds to gh's default scopes (`repo`, `read:org`, `gist`, `workflow`).
 
-### 2. Root .envrc (work default)
+Each login writes `config.yml` and `hosts.yml` into its directory and stores the token in the macOS login Keychain (service `gh:github.com`, account set to the GitHub username). Neither file holds the token.
 
-```bash
-export GH_CONFIG_DIR=~/.config/gh/work
-export GITHUB_PAT=$(gh auth token)
+If the directories are lost but the Keychain entries remain, you can recreate the two files instead of logging in again. `config.yml`:
+
+```yaml
+version: "1"
+git_protocol: https
 ```
 
-### 3. Personal override .envrc
+`hosts.yml`, with the account's username:
+
+```yaml
+github.com:
+    git_protocol: https
+    users:
+        bespinosa_mntv:
+    user: bespinosa_mntv
+```
+
+Then check with `GH_CONFIG_DIR=~/.config/gh/work gh auth status`. macOS may ask to let `gh` use the Keychain.
+
+### 2. Root `.envrc` (personal)
 
 ```bash
 export GH_CONFIG_DIR=~/.config/gh/personal
 export GITHUB_PAT=$(gh auth token)
+export GIT_CONFIG_GLOBAL=~/.config/git/personal
 ```
 
-Place this in each personal `@*` directory. `cd` into each and run `direnv allow`.
+### 3. Work `.envrc` (`@momentive_emu/`)
+
+```bash
+export GH_CONFIG_DIR=~/.config/gh/work
+export GITHUB_PAT=$(gh auth token)
+export GIT_CONFIG_GLOBAL=~/.config/git/work
+```
+
+It also sets the AWS profile and CodeArtifact values. See `~/Code/CLAUDE.md`.
+
+### 4. Allow each `.envrc`
+
+`cd` into each directory that has one and run `direnv allow`. direnv blocks a new or changed `.envrc` until it is allowed again.
+
+## Git profiles
+
+`~/.config/git/personal` and `~/.config/git/work` each set `user.name` and `user.email`, and both include `~/.config/git/base` for shared settings. Each one resets the credential helper for `https://github.com` and hands it to `gh auth git-credential`. Without the reset, Apple's git runs `osxkeychain` first and can return the other account's token.
 
 ## How direnv inheritance works
 
-direnv walks up the directory tree and loads the **nearest** `.envrc` it finds, then stops. It does NOT continue upward unless `source_up` is called explicitly.
+direnv loads the nearest `.envrc` above the current directory and stops there. It goes further up only when that file calls `source_up`. So:
 
-This means:
-- Repos in `@mntv-actions/` find `~/Web/.envrc` (work) → correct
-- Repos in `@brianespinosa/` find `~/Web/@brianespinosa/.envrc` (personal) → correct, root ignored
+- Repos in `@momentive_emu/@mntv-*/` load `@momentive_emu/.envrc` (work), and never the root.
+- Repos in `@SurveyMonkey/` load `@SurveyMonkey/.envrc`, whose `source_up` loads the root (personal) first.
+- Repos in `@brianespinosa/` and `@bje/` load the root (personal).
 
 ## Security notes
 
-- `.envrc` files contain no secrets — tokens are evaluated dynamically at shell load time
-- `~/.config/gh/personal/` and `~/.config/gh/work/` use macOS Keychain (no plaintext)
-- `~/Web/` is not a git repo — `.envrc` files here cannot be accidentally committed
-- `direnv allow` stores a hash of each `.envrc`; modifications are blocked until re-approved
+- No `.envrc` holds a secret. Tokens are read when direnv loads the file, from `gh` or the Keychain.
+- `~/Code` is not a git repository. The `.envrc` files are symlinks into the dotfiles repos, which commit no secret.
+- `direnv allow` stores a hash of each `.envrc`, so an edited file does nothing until approved.
 
 ## Token freshness
 
-`gh auth token` is evaluated when direnv loads the `.envrc` (on `cd`). OAuth tokens from `gh auth login` are long-lived (until revoked). Re-entering a directory forces re-evaluation if needed.
+`gh auth token` runs when direnv loads the `.envrc`, on `cd`. OAuth tokens from `gh auth login` last until revoked. `direnv reload` re-reads them.
